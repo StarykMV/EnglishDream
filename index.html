@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="EnglishDream — ігровий тренажер англійської: часи простою мовою, тисяча слів з озвучкою, серія днів і досвід.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>EnglishDream</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap">
+<style>
+/* Макет: ігровий «шлях» уроків по центру; урок відкривається на весь екран; кнопки об'ємні, з тінню-«підошвою» */
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #eef1f7;
+  --ink: #1d2433;
+  --muted: #6b7385;
+  --faint: #a2a9b8;
+  --line: #e2e6ef;
+  --line-2: #cfd5e2;
+  --navy: #1f2a44;
+  --navy-sh: #0f1626;
+  --navy-ink: #ffffff;
+  --primary: #2b3d66;
+  --primary-sh: #1a2747;
+  --amber: #f2a93b;
+  --amber-sh: #c9821c;
+  --amber-soft: #fff3df;
+  --green: #3aa864;
+  --green-sh: #2a8049;
+  --green-soft: #e3f6ea;
+  --red: #e0484e;
+  --red-sh: #b3343a;
+  --red-soft: #fde8e9;
+  --sky: #5b86e5;
+  --font: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --r: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1320; --surface: #161d2d; --surface-2: #1d2538; --ink: #eef1f7; --muted: #a4acbf; --faint: #69728a;
+    --line: #283149; --line-2: #36405c; --navy: #0a0f1a; --navy-sh: #04070d; --navy-ink: #eef1f7;
+    --primary: #6f8fd6; --primary-sh: #4b67a8; --amber-soft: #3a2c14; --green-soft: #15301f; --red-soft: #3a1a1c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1320; --surface: #161d2d; --surface-2: #1d2538; --ink: #eef1f7; --muted: #a4acbf; --faint: #69728a;
+  --line: #283149; --line-2: #36405c; --navy: #0a0f1a; --navy-sh: #04070d; --navy-ink: #eef1f7;
+  --primary: #6f8fd6; --primary-sh: #4b67a8; --amber-soft: #3a2c14; --green-soft: #15301f; --red-soft: #3a1a1c;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.55; font-weight: 600; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--navy); }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; margin: 0; font-weight: 900; }
+svg { display: block; }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 980px; margin: 0 auto; }
+
+/* ---------- Об'ємні кнопки ---------- */
+.b3d { --c: var(--primary); --sh: var(--primary-sh); --tx: #fff;
+  border: 0; border-radius: 14px; background: var(--c); color: var(--tx); font-weight: 800; letter-spacing: .4px;
+  padding: 13px 22px; box-shadow: 0 4px 0 var(--sh); transform: translateY(0); transition: transform .08s, box-shadow .08s, filter .15s; text-transform: uppercase; font-size: .92rem; }
+.b3d:hover:not(:disabled) { filter: brightness(1.07); }
+.b3d:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 var(--sh); }
+.b3d:disabled { --c: var(--surface-2); --sh: var(--line-2); --tx: var(--faint); cursor: default; }
+.b3d.green { --c: var(--green); --sh: var(--green-sh); }
+.b3d.red { --c: var(--red); --sh: var(--red-sh); }
+.b3d.amber { --c: var(--amber); --sh: var(--amber-sh); --tx: #3b2604; }
+.b3d.ghost { --c: var(--surface); --sh: var(--line-2); --tx: var(--primary); border: 2px solid var(--line-2); }
+.b3d.wide { width: 100%; }
+
+/* ---------- Шапка ---------- */
+header.top { background: var(--navy); color: var(--navy-ink); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; padding-block: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.15rem; letter-spacing: .2px; }
+.brand .logo { width: 34px; height: 34px; border-radius: 10px; background: var(--amber); display: grid; place-items: center; box-shadow: 0 3px 0 var(--amber-sh); color: #3b2604; font-size: .9rem; font-weight: 900; }
+nav.tabs { display: flex; gap: 6px; }
+nav.tabs a { color: var(--navy-ink); text-decoration: none; padding: 7px 14px; border-radius: 12px; font-weight: 800; opacity: .7; border: 2px solid transparent; text-transform: uppercase; font-size: .8rem; letter-spacing: .6px; }
+nav.tabs a:hover { opacity: 1; }
+nav.tabs a[aria-current="page"] { opacity: 1; border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.08); }
+.stats { display: flex; align-items: center; gap: 14px; font-variant-numeric: tabular-nums; font-weight: 800; }
+.stat-pill { display: flex; align-items: center; gap: 5px; }
+.stat-pill svg { width: 22px; height: 22px; }
+.stat-pill.off { opacity: .45; filter: grayscale(1); }
+.ring { position: relative; width: 34px; height: 34px; }
+.ring svg { width: 34px; height: 34px; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 4; }
+.ring .bgc { stroke: rgba(255,255,255,.18); }
+.ring .fgc { stroke: var(--amber); stroke-linecap: round; transition: stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1); }
+.ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: .62rem; font-weight: 900; }
+.icon-btn { background: none; border: 0; color: var(--navy-ink); opacity: .7; padding: 4px; border-radius: 8px; }
+.icon-btn:hover { opacity: 1; }
+.icon-btn svg { width: 22px; height: 22px; }
+.bump { animation: bump .5s cubic-bezier(.3,1.6,.5,1); }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+main { padding-block: 26px 80px; }
+.view[hidden] { display: none !important; }
+
+/* ---------- Шлях ---------- */
+.home { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 32px; align-items: start; }
+.unit { margin-bottom: 26px; }
+.unit-head { background: var(--primary); color: #fff; border-radius: var(--r); padding: 16px 20px; box-shadow: 0 4px 0 var(--primary-sh); display: grid; gap: 2px; }
+.unit-head small { opacity: .75; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: .72rem; }
+.unit-head b { font-size: 1.2rem; font-weight: 900; }
+.unit-head.u2 { background: #3d5a8f; box-shadow: 0 4px 0 #29406a; }
+.unit-head.u3 { background: #7a4a2a; box-shadow: 0 4px 0 #57331c; }
+.path { display: grid; justify-items: center; gap: 18px; padding-block: 26px 6px; }
+.node-wrap { position: relative; display: grid; justify-items: center; gap: 8px; animation: rise .5s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes rise { from { transform: translateY(18px) scale(.9); } to { transform: none; } }
+.node { width: 76px; height: 76px; border-radius: 50%; border: 0; display: grid; place-items: center;
+  background: var(--surface-2); box-shadow: 0 6px 0 var(--line-2); color: var(--faint); transition: transform .08s, box-shadow .08s; position: relative; }
+.node svg { width: 34px; height: 34px; }
+.node:active { transform: translateY(6px); box-shadow: 0 0 0 var(--line-2); }
+.node.done { background: var(--amber); box-shadow: 0 6px 0 var(--amber-sh); color: #fff; }
+.node.done:active { box-shadow: 0 0 0 var(--amber-sh); }
+.node.current { background: var(--primary); box-shadow: 0 6px 0 var(--primary-sh); color: #fff; }
+.node.current:active { box-shadow: 0 0 0 var(--primary-sh); }
+.node.current::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 4px solid var(--primary); opacity: .35; animation: pulse 1.8s ease-out infinite; }
+@keyframes pulse { 0% { transform: scale(.9); opacity: .5; } 100% { transform: scale(1.25); opacity: 0; } }
+.node-label { font-weight: 800; font-size: .9rem; text-align: center; max-width: 150px; line-height: 1.2; }
+.node-label small { display: block; color: var(--muted); font-weight: 700; font-size: .76rem; }
+.start-tip { position: absolute; top: -46px; background: var(--surface); border: 2px solid var(--line-2); color: var(--primary); font-weight: 900; text-transform: uppercase; font-size: .78rem; letter-spacing: .6px; padding: 6px 12px; border-radius: 12px; white-space: nowrap; animation: bob 1.6s ease-in-out infinite; pointer-events: none; }
+.start-tip::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; background: var(--surface); border-right: 2px solid var(--line-2); border-bottom: 2px solid var(--line-2); transform: translateX(-50%) rotate(45deg); }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.stars { display: flex; gap: 2px; color: var(--amber); }
+.stars svg { width: 14px; height: 14px; }
+.stars .e { color: var(--line-2); }
+
+.side { display: grid; gap: 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 90px); }
+.card { background: var(--surface); border: 2px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 12px; }
+.card h3 { font-size: 1.05rem; }
+.goal-bar { height: 16px; border-radius: 10px; background: var(--surface-2); overflow: hidden; }
+.goal-bar i { display: block; height: 100%; background: var(--amber); border-radius: 10px; transition: width .8s cubic-bezier(.2,.8,.2,1); position: relative; }
+.goal-bar i::after { content: ""; position: absolute; left: 8px; right: 8px; top: 3px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.4); }
+.muted { color: var(--muted); font-weight: 600; font-size: .92rem; }
+.big-num { font-size: 1.8rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: .72rem; color: var(--muted); font-weight: 800; }
+.week i { display: block; width: 26px; height: 26px; margin: 4px auto 0; border-radius: 50%; background: var(--surface-2); }
+.week i.on { background: var(--amber); box-shadow: 0 2px 0 var(--amber-sh); }
+
+/* ---------- Слова ---------- */
+.page-head { display: grid; gap: 6px; margin-bottom: 22px; }
+.page-head h1 { font-size: 1.8rem; }
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+.cat { text-align: left; border: 2px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 18px; display: grid; gap: 10px; box-shadow: 0 4px 0 var(--line); transition: transform .08s, box-shadow .08s, border-color .15s; animation: rise .5s cubic-bezier(.2,.9,.3,1.2) both; }
+.cat:hover { border-color: var(--line-2); }
+.cat:active { transform: translateY(4px); box-shadow: 0 0 0 var(--line); }
+.cat .ico { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; color: #fff; }
+.cat .ico svg { width: 26px; height: 26px; }
+.cat .ico-l { font-size: 1.35rem; font-weight: 900; line-height: 1; }
+.cat-total { color: var(--muted); font-weight: 700; }
+.group-h { font-size: 1.15rem; margin: 26px 0 12px; }
+.ai-card { background: var(--navy); color: #fff; border-radius: 20px; padding: 22px; display: grid; gap: 16px; margin-bottom: 26px; box-shadow: 0 5px 0 var(--navy-sh); position: relative; overflow: hidden; }
+.ai-card::before { content: ""; position: absolute; width: 260px; height: 260px; right: -80px; top: -120px; border-radius: 50%; background: radial-gradient(circle, rgba(242,169,59,.35), transparent 70%); animation: glow 6s ease-in-out infinite alternate; pointer-events: none; }
+@keyframes glow { from { transform: translate(0, 0) scale(1); } to { transform: translate(-40px, 30px) scale(1.15); } }
+.ai-head { display: grid; gap: 6px; position: relative; }
+.ai-head h2 { font-size: 1.5rem; }
+.ai-head p { margin: 0; opacity: .8; font-weight: 600; max-width: 60ch; }
+.ai-badge { justify-self: start; background: var(--amber); color: #3b2604; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 999px; }
+.ai-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; position: relative; }
+.lvls { display: flex; gap: 4px; background: rgba(255,255,255,.1); padding: 4px; border-radius: 12px; }
+.lvls button { border: 0; background: transparent; color: #fff; opacity: .7; font-weight: 900; padding: 7px 11px; border-radius: 9px; font-size: .85rem; }
+.lvls button[aria-pressed="true"] { background: #fff; color: var(--navy); opacity: 1; box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+#aiTopic { flex: 1 1 220px; min-width: 0; border: 2px solid rgba(255,255,255,.18); background: rgba(255,255,255,.07); color: #fff; border-radius: 12px; padding: 10px 14px; font-weight: 700; }
+#aiTopic::placeholder { color: rgba(255,255,255,.5); }
+#aiTopic:focus { outline: none; border-color: var(--amber); }
+.ai-status { position: relative; font-weight: 700; font-size: .92rem; opacity: .85; min-height: 1.2em; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ai-status .typing { background: rgba(255,255,255,.12); padding: 8px 10px; }
+.ai-status .typing i { background: #fff; }
+.cat b { font-size: 1.1rem; font-weight: 900; }
+.mini-bar { height: 8px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.mini-bar i { display: block; height: 100%; background: var(--green); border-radius: 6px; }
+.cat.review { border-style: dashed; }
+.toggle { display: inline-flex; background: var(--surface-2); border-radius: 12px; padding: 4px; gap: 4px; }
+.toggle button { border: 0; background: transparent; padding: 7px 14px; border-radius: 9px; font-weight: 800; color: var(--muted); font-size: .85rem; }
+.toggle button[aria-pressed="true"] { background: var(--surface); color: var(--primary); box-shadow: 0 2px 0 var(--line-2); }
+.head-row { display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap; }
+
+/* ---------- Урок (на весь екран) ---------- */
+.lesson { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); animation: lessonIn .35s cubic-bezier(.2,.9,.3,1) both; }
+.lesson[hidden] { display: none !important; }
+@keyframes lessonIn { from { transform: translateY(24px); } to { transform: none; } }
+.l-top { display: flex; align-items: center; gap: 14px; padding-block: 16px; max-width: 760px; width: 100%; margin: 0 auto; }
+.l-close { background: none; border: 0; color: var(--faint); padding: 4px; border-radius: 8px; }
+.l-close svg { width: 26px; height: 26px; }
+.l-close:hover { color: var(--ink); }
+.l-bar { flex: 1; height: 18px; border-radius: 12px; background: var(--surface-2); overflow: hidden; }
+.l-bar i { display: block; height: 100%; width: 0; background: var(--green); border-radius: 12px; transition: width .5s cubic-bezier(.2,.9,.3,1.2); position: relative; }
+.l-bar i::after { content: ""; position: absolute; left: 10px; right: 10px; top: 4px; height: 5px; border-radius: 4px; background: rgba(255,255,255,.35); }
+.combo { font-weight: 900; color: var(--amber); font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; font-size: .95rem; }
+.combo.hot { animation: bump .5s cubic-bezier(.3,1.6,.5,1); }
+.l-body { overflow-y: auto; }
+.l-inner { max-width: 640px; margin: 0 auto; padding-block: 12px 24px; display: grid; gap: 22px; }
+.slide-in { animation: slideIn .4s cubic-bezier(.2,.9,.3,1.1) both; }
+@keyframes slideIn { from { transform: translateX(40px); } to { transform: none; } }
+.q-label { font-size: .8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--sky); font-weight: 900; }
+.q-text { font-size: 1.55rem; font-weight: 800; line-height: 1.35; display: flex; gap: 10px; align-items: flex-start; }
+.q-text .gap { display: inline-block; min-width: 3.2em; border-bottom: 3px solid var(--line-2); color: var(--primary); text-align: center; }
+.say { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--sky); color: #fff; display: grid; place-items: center; box-shadow: 0 4px 0 #3f66bd; transition: transform .08s, box-shadow .08s; }
+.say:active { transform: translateY(4px); box-shadow: 0 0 0 #3f66bd; }
+.say svg { width: 22px; height: 22px; }
+.say.sm { width: 32px; height: 32px; border-radius: 9px; box-shadow: 0 3px 0 #3f66bd; }
+.say.sm svg { width: 16px; height: 16px; }
+.big-word { font-size: 2.3rem; font-weight: 900; text-align: center; display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; overflow-wrap: anywhere; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.tile { border: 2px solid var(--line); border-radius: 14px; background: var(--surface); padding: 14px 16px; text-align: left; font-weight: 800; font-size: 1.05rem;
+  box-shadow: 0 4px 0 var(--line); display: flex; align-items: center; gap: 12px; transition: transform .08s, box-shadow .08s, border-color .12s, background .12s; }
+.tile kbd { font-family: var(--font); font-size: .78rem; color: var(--faint); border: 2px solid var(--line); border-radius: 8px; width: 26px; height: 26px; display: grid; place-items: center; flex: 0 0 auto; }
+.tile:hover:not(:disabled) { background: var(--surface-2); }
+.tile:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 var(--line); }
+.tile.sel { border-color: var(--sky); background: rgba(91,134,229,.10); box-shadow: 0 4px 0 #3f66bd; color: var(--sky); }
+.tile.sel kbd { border-color: var(--sky); color: var(--sky); }
+.tile.ok { border-color: var(--green); background: var(--green-soft); box-shadow: 0 4px 0 var(--green-sh); color: var(--green); animation: pop .45s cubic-bezier(.3,1.7,.5,1); }
+.tile.no { border-color: var(--red); background: var(--red-soft); box-shadow: 0 4px 0 var(--red-sh); color: var(--red); animation: shake .45s; }
+.tile:disabled { cursor: default; }
+@keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+
+.l-foot { border-top: 2px solid var(--line); background: var(--bg); transition: background .2s, border-color .2s; }
+.l-foot.good { background: var(--green-soft); border-color: transparent; }
+.l-foot.bad { background: var(--red-soft); border-color: transparent; }
+.l-foot-in { max-width: 760px; margin: 0 auto; padding-block: 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.fb { display: flex; gap: 14px; align-items: center; min-width: 0; flex: 1 1 320px; animation: sheetUp .35s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes sheetUp { from { transform: translateY(30px); } to { transform: none; } }
+.fb-ico { width: 56px; height: 56px; border-radius: 50%; background: #fff; display: grid; place-items: center; flex: 0 0 auto; }
+.fb-ico svg { width: 32px; height: 32px; }
+.good .fb-ico { color: var(--green); }
+.bad .fb-ico { color: var(--red); }
+.fb-txt { display: grid; gap: 2px; min-width: 0; }
+.fb-txt b { font-size: 1.25rem; font-weight: 900; }
+.good .fb-txt b { color: var(--green); }
+.bad .fb-txt b { color: var(--red); }
+.fb-txt span { font-weight: 700; font-size: .95rem; }
+.fb-txt em { font-style: normal; color: var(--muted); font-size: .9rem; }
+.xp-float { position: fixed; z-index: 60; font-weight: 900; color: var(--amber); font-size: 1.3rem; pointer-events: none; animation: floatUp 1s ease-out forwards; text-shadow: 0 2px 0 rgba(0,0,0,.08); }
+@keyframes floatUp { 0% { transform: translateY(0) scale(.8); opacity: 1; } 100% { transform: translateY(-60px) scale(1.2); opacity: 0; } }
+
+/* Теорія всередині уроку */
+.theory { display: grid; gap: 18px; }
+.theory h2 { font-size: 2rem; }
+.theory .idea { font-size: 1.15rem; color: var(--muted); font-weight: 700; margin: 0; }
+.t-block { display: grid; gap: 8px; }
+.t-block h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: 1px; color: var(--faint); font-weight: 900; }
+.t-when { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; font-weight: 600; }
+.formula { display: grid; border: 2px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.formula div { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; border-top: 2px solid var(--line); }
+.formula div:first-child { border-top: 0; }
+.formula .sign { font-weight: 900; font-size: 1.2rem; color: #fff; background: var(--primary); height: 100%; display: grid; place-items: center; }
+.formula .s2 { background: var(--red); }
+.formula .s3 { background: var(--sky); }
+.formula code { font-family: var(--font); font-weight: 700; padding: 10px 14px; overflow-wrap: anywhere; }
+.formula code em { font-style: normal; color: var(--amber-sh); font-weight: 900; }
+.markers { display: flex; flex-wrap: wrap; gap: 8px; }
+.markers span { padding: 4px 12px; border-radius: 999px; background: var(--amber-soft); color: var(--amber-sh); font-weight: 800; font-size: .88rem; }
+.ex { display: grid; gap: 10px; }
+.ex div { display: flex; gap: 10px; align-items: center; }
+.ex p { margin: 0; display: grid; }
+.ex p span { color: var(--muted); font-size: .9rem; font-weight: 600; }
+.trap { border-radius: 14px; background: var(--red-soft); padding: 14px 16px; display: grid; gap: 4px; }
+.trap .x { text-decoration: line-through; color: var(--red); font-weight: 800; }
+.trap .ok { color: var(--green); font-weight: 900; }
+.trap small { color: var(--muted); font-weight: 600; font-size: .9rem; }
+
+/* Фінал уроку */
+.finish { text-align: center; display: grid; gap: 18px; justify-items: center; padding-top: 20px; }
+.finish h2 { font-size: 2.1rem; color: var(--amber-sh); }
+.trophy { width: 120px; height: 120px; border-radius: 50%; background: var(--amber-soft); display: grid; place-items: center; color: var(--amber); animation: pop .7s cubic-bezier(.3,1.7,.5,1) both; }
+.trophy svg { width: 64px; height: 64px; }
+.res-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100%; max-width: 480px; }
+.res { border: 2px solid var(--amber); border-radius: 14px; overflow: hidden; animation: rise .5s cubic-bezier(.2,.9,.3,1.2) both; }
+.res b { display: block; background: var(--amber); color: #3b2604; font-size: .72rem; text-transform: uppercase; letter-spacing: 1px; padding: 4px; font-weight: 900; }
+.res span { display: block; padding: 10px 4px; font-size: 1.4rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.res.g { border-color: var(--green); } .res.g b { background: var(--green); color: #fff; }
+.res.s { border-color: var(--sky); } .res.s b { background: var(--sky); color: #fff; }
+canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 70; }
+
+/* ---------- Розмова ---------- */
+.chat-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 22px; align-items: start; }
+.scen { display: grid; gap: 8px; }
+.scen button { text-align: left; border: 2px solid var(--line); background: var(--surface); border-radius: 14px; padding: 10px 14px; display: grid; box-shadow: 0 3px 0 var(--line); transition: transform .08s, box-shadow .08s; }
+.scen button:active { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
+.scen button b { font-weight: 900; }
+.scen button small { color: var(--muted); font-weight: 700; font-size: .8rem; }
+.scen button[aria-pressed="true"] { border-color: var(--sky); box-shadow: 0 3px 0 #3f66bd; background: rgba(91,134,229,.08); }
+.chat { background: var(--surface); border: 2px solid var(--line); border-radius: 18px; display: grid; grid-template-rows: minmax(0, 1fr) auto; height: 70vh; min-height: 460px; overflow: hidden; min-width: 0; }
+.log { overflow-y: auto; padding: 18px; display: grid; gap: 12px; align-content: start; }
+.msg { max-width: 85%; display: grid; gap: 4px; animation: msgIn .3s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes msgIn { from { transform: translateY(10px) scale(.97); } to { transform: none; } }
+.msg.ai { justify-self: start; }
+.msg.me { justify-self: end; }
+.msg-row { display: flex; gap: 8px; align-items: flex-end; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 900; font-size: .8rem; flex: 0 0 auto; }
+.bubble { padding: 11px 15px; border-radius: 18px; white-space: pre-wrap; overflow-wrap: anywhere; font-weight: 700; }
+.ai .bubble { background: var(--surface-2); border-bottom-left-radius: 6px; }
+.me .bubble { background: var(--primary); color: #fff; border-bottom-right-radius: 6px; }
+.msg-tools { display: flex; gap: 8px; padding-left: 42px; align-items: center; }
+.tiny { background: none; border: 0; color: var(--faint); font-size: .8rem; font-weight: 800; padding: 0; text-transform: uppercase; letter-spacing: .5px; }
+.tiny:hover { color: var(--sky); }
+.tr { font-size: .9rem; color: var(--muted); padding-left: 42px; font-weight: 600; }
+.review { justify-self: end; max-width: 85%; border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; font-size: .93rem; background: var(--red-soft); animation: msgIn .3s both; }
+.review.clean { background: var(--green-soft); }
+.review h4 { margin: 0; font-size: .72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 900; }
+.review.clean h4:first-child { color: var(--green); }
+.fix { display: grid; gap: 1px; }
+.fix .x { text-decoration: line-through; color: var(--red); font-weight: 800; }
+.fix .ok { color: var(--green); font-weight: 900; }
+.fix small { color: var(--muted); font-weight: 600; }
+.native { font-style: italic; font-weight: 700; }
+.typing { display: flex; gap: 5px; padding: 14px 16px; background: var(--surface-2); border-radius: 18px; border-bottom-left-radius: 6px; width: max-content; }
+.typing i { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); animation: dot 1.2s infinite; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes dot { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-6px); opacity: 1; } }
+.composer { border-top: 2px solid var(--line); padding: 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+.composer textarea { resize: none; border: 2px solid var(--line); border-radius: 14px; padding: 11px 14px; background: var(--bg); min-height: 50px; max-height: 140px; font-weight: 700; }
+.composer textarea:focus { border-color: var(--sky); outline: none; }
+.notice { padding: 12px 14px; border-radius: 12px; background: var(--amber-soft); color: var(--ink); font-size: .92rem; font-weight: 700; }
+
+@media (max-width: 820px) {
+  .home, .chat-layout { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; order: -1; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .scen { display: flex; overflow-x: auto; padding-bottom: 6px; }
+  .scen button { flex: 0 0 auto; }
+  .scen button small { display: none; }
+  .chat { height: 72vh; }
+  .q-text { font-size: 1.3rem; }
+  .big-word { font-size: 1.9rem; }
+  .theory h2 { font-size: 1.6rem; }
+  .l-foot-in .b3d { width: 100%; }
+  .stats { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-flame" viewBox="0 0 24 24"><path fill="#f2a93b" d="M12 2c1 3.5 5 5.6 5 10.5A5 5 0 0 1 7 13c0-2 1-3.6 2.2-4.6.2 1.8 1 2.8 2 3.2C11 9 11.3 5 12 2z"/><path fill="#ffd27a" d="M12 21a3 3 0 0 1-3-3c0-1.6 1.2-2.6 2-3.4.2 1 .8 1.6 1.6 1.8.3-1 .3-2 0-3 1.4.9 2.4 2.5 2.4 4.6a3 3 0 0 1-3 3z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="#f2a93b" d="M13.5 2 4 14h7l-1.5 8L20 9.5h-7z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v16H6.5a1.5 1.5 0 0 0 0 3H20v1H6.5A2.5 2.5 0 0 1 4 19.5z"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path fill="currentColor" d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3zm-1 4v1a2 2 0 0 0 1.4 1.9A6 6 0 0 1 7 8V7zm11 0v1a6 6 0 0 1-.4 1.9A2 2 0 0 0 18 8V7z"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M16 9a4 4 0 0 1 0 6"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4z"/><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="m16 9.5 5 5m0-5-5 5"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/></symbol>
+  <symbol id="i-plane" viewBox="0 0 24 24"><path fill="currentColor" d="M21 15.5v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0v5l-8 5v2l8-2.5V18l-2 1.5V21l3.5-1 3.5 1v-1.5L13 18v-5z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v11H9l-5 4z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></symbol>
+</svg>
+
+<header class="top gutter">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand"><span class="logo">ED</span><span>EnglishDream</span></div>
+      <nav class="tabs" aria-label="Розділи">
+        <a href="#shlyakh" data-view="shlyakh">Шлях</a>
+        <a href="#slova" data-view="slova">Слова</a>
+        <a href="#rozmova" data-view="rozmova">Розмова</a>
+      </nav>
+      <div class="stats">
+        <span class="stat-pill" id="streakPill" title="Серія днів"><svg><use href="#i-flame"/></svg><span id="streakNum">0</span></span>
+        <span class="stat-pill" id="xpPill" title="Досвід"><svg><use href="#i-bolt"/></svg><span id="xpNum">0</span></span>
+        <span class="ring" title="Ціль на день: 50 досвіду"><svg viewBox="0 0 34 34"><circle class="bgc" cx="17" cy="17" r="14"/><circle class="fgc" id="ringFg" cx="17" cy="17" r="14" stroke-dasharray="87.96" stroke-dashoffset="87.96"/></svg><span id="ringTxt">0</span></span>
+        <button type="button" class="icon-btn" id="soundBtn" aria-label="Звук"><svg><use href="#i-sound"/></svg></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="gutter">
+  <div class="wrap">
+    <section class="view" id="view-shlyakh">
+      <div class="home">
+        <div id="units"></div>
+        <aside class="side">
+          <div class="card">
+            <h3>Ціль на сьогодні</h3>
+            <div class="goal-bar"><i id="goalBar" style="width:0%"></i></div>
+            <span class="muted" id="goalTxt">0 / 50 досвіду</span>
+          </div>
+          <div class="card">
+            <h3>Серія</h3>
+            <div class="big-num" id="streakBig">0 днів</div>
+            <div class="week" id="week"></div>
+          </div>
+          <div class="card">
+            <h3>Пройдено часів</h3>
+            <div class="big-num" id="doneBig">0 / 7</div>
+            <span class="muted">Урок зараховано від 4 зірок із 5. Чим менше помилок, тим більше зірок.</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view" id="view-slova" hidden>
+      <div class="page-head">
+        <div class="head-row">
+          <div><h1>Слова</h1><p class="muted" style="margin:4px 0 0" id="wordsLede">Обери тему. Раунд із 10 слів, спершу ті, що ще не вивчені.</p></div>
+          <div class="toggle" role="group" aria-label="Напрям">
+            <button type="button" id="dirEn" aria-pressed="true">EN → UA</button>
+            <button type="button" id="dirUa" aria-pressed="false">UA → EN</button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-card" id="aiCard">
+        <div class="ai-head">
+          <span class="ai-badge">Без кінця</span>
+          <h2>Безмежний словник</h2>
+          <p>ШІ підбирає 10 нових слів під твій рівень і тему. Ті, що ти вже бачив, не повторюються. Кожне нове слово додається у твій словник.</p>
+        </div>
+        <div class="ai-controls">
+          <div class="lvls" id="lvls" role="group" aria-label="Рівень"></div>
+          <input id="aiTopic" type="text" maxlength="60" placeholder="Тема: будь-яка, бізнес, армія, кіно, кохання…">
+          <button type="button" class="b3d amber" id="aiGo">Новий раунд</button>
+        </div>
+        <div class="ai-status" id="aiStatus" aria-live="polite"></div>
+      </div>
+      <div id="cats"></div>
+    </section>
+
+    <section class="view" id="view-rozmova" hidden>
+      <div class="page-head">
+        <h1>Розмова</h1>
+        <p class="muted" style="margin:0">Пиши англійською як умієш. Співрозмовник відповість живою мовою, покаже помилки і як сказав би носій.</p>
+      </div>
+      <div class="chat-layout">
+        <div class="scen" id="scenList" role="group" aria-label="Тема розмови"></div>
+        <div class="chat">
+          <div class="log" id="log" aria-live="polite"></div>
+          <form class="composer" id="composer">
+            <textarea id="msgInput" rows="1" placeholder="Напиши англійською… (Enter — надіслати)"></textarea>
+            <div style="display:flex;gap:8px">
+              <button type="button" class="b3d red" id="stopBtn" hidden>Стоп</button>
+              <button type="submit" class="b3d green" id="sendBtn">Надіслати</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Урок -->
+<div class="lesson" id="lesson" hidden role="dialog" aria-modal="true" aria-label="Урок">
+  <div class="gutter"><div class="l-top">
+    <button type="button" class="l-close" id="lClose" aria-label="Закрити урок"><svg><use href="#i-x"/></svg></button>
+    <div class="l-bar"><i id="lBar"></i></div>
+    <div class="combo" id="combo"></div>
+  </div></div>
+  <div class="l-body gutter" id="lBody"><div class="l-inner" id="lInner"></div></div>
+  <div class="l-foot gutter" id="lFoot"><div class="l-foot-in" id="lFootIn"></div></div>
+</div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+/* ================= ДАНІ: ЧАСИ ================= */
+const TENSES = [
+  { id: "ps", unit: 1, name: "Present Simple", short: "звичка, факт, розклад",
+    idea: "Те, що відбувається регулярно або завжди правда.",
+    when: ["Звички і рутина: I train three times a week.", "Факти: Water boils at 100 degrees.", "Розклад: The bus leaves at 7."],
+    formula: [["+", "I / you / we / they <em>work</em> · he / she / it <em>works</em>"], ["−", "I <em>don't work</em> · he <em>doesn't work</em>"], ["?", "<em>Do</em> you work? · <em>Does</em> he work?"]],
+    markers: ["always", "usually", "often", "sometimes", "never", "every day"],
+    examples: [["I train three times a week.", "Я тренуюсь тричі на тиждень."], ["She works in a hospital.", "Вона працює в лікарні."], ["Do you speak English?", "Ти говориш англійською?"]],
+    trap: { x: "He work every day.", ok: "He works every day.", note: "У he / she / it додається -s. Після doesn't -s зникає: he doesn't work." },
+    drill: [
+      ["He ___ to the gym every morning.", ["go", "goes", "is going"], 1, "he → додаємо -s: goes. Every morning — це звичка."],
+      ["I ___ coffee. I prefer tea.", ["don't like", "doesn't like", "not like"], 0, "Для I заперечення через don't."],
+      ["___ you speak English?", ["Do", "Does", "Are"], 0, "Питання з you будується через Do."],
+      ["The lesson ___ at 8:30.", ["starts", "is starting", "start"], 0, "Розклад — Present Simple, the lesson = it → starts."],
+      ["My brother ___ in Kyiv.", ["live", "lives", "living"], 1, "My brother = he → lives."],
+      ["She ___ meat.", ["doesn't eat", "don't eat", "not eats"], 0, "she → doesn't, а дієслово без -s: eat."]
+    ]},
+  { id: "pc", unit: 1, name: "Present Continuous", short: "просто зараз",
+    idea: "Дія триває саме зараз або в цей період.",
+    when: ["Прямо зараз: I'm studying right now.", "Тимчасово, цього тижня: I'm working nights this week.", "Домовленість на найближче: We're meeting at six."],
+    formula: [["+", "I <em>am</em> work<em>ing</em> · he <em>is</em> working · they <em>are</em> working"], ["−", "I'm <em>not</em> working · he <em>isn't</em> working"], ["?", "<em>Are</em> you working? · <em>Is</em> she working?"]],
+    markers: ["now", "right now", "at the moment", "today", "this week", "Look!"],
+    examples: [["I'm studying right now.", "Я зараз вчуся."], ["They are waiting for us.", "Вони на нас чекають."], ["What are you doing?", "Що ти робиш?"]],
+    trap: { x: "I am knowing the answer.", ok: "I know the answer.", note: "Дієслова стану (know, like, want, understand, need) майже ніколи не бувають з -ing." },
+    drill: [
+      ["Be quiet! The baby ___.", ["is sleeping", "sleeps", "sleeping"], 0, "Прямо зараз → am / is / are + -ing."],
+      ["Look! It ___.", ["is raining", "rains", "rain"], 0, "Look! — дія відбувається на очах."],
+      ["I ___ for the exam this week.", ["am preparing", "prepare", "preparing"], 0, "This week — тимчасова дія, без am не можна."],
+      ["What ___ you doing?", ["are", "do", "is"], 0, "you → are."],
+      ["I ___ what you mean.", ["understand", "am understanding", "understanding"], 0, "understand — дієслово стану, без -ing."],
+      ["They ___ TV right now.", ["aren't watching", "don't watch", "not watching"], 0, "Заперечення: are + not + -ing."]
+    ]},
+  { id: "pp", unit: 1, name: "Present Perfect", short: "результат, досвід",
+    idea: "Минула дія, але важливий результат зараз. Конкретного часу не називаємо.",
+    when: ["Результат: I have lost my keys (і зараз не можу зайти).", "Досвід за життя: Have you ever been to the USA?", "Від минулого до тепер: I've lived here for two years."],
+    formula: [["+", "I / you / we / they <em>have</em> done · he / she <em>has</em> done"], ["−", "I <em>haven't</em> done · he <em>hasn't</em> done"], ["?", "<em>Have</em> you done? · <em>Has</em> she done?"]],
+    markers: ["already", "just", "yet", "ever", "never", "since", "for"],
+    examples: [["I have already eaten.", "Я вже поїв."], ["Have you ever been to the USA?", "Ти колись був у США?"], ["She has worked here since 2022.", "Вона працює тут з 2022 року."]],
+    trap: { x: "I have seen him yesterday.", ok: "I saw him yesterday.", note: "Є конкретний час (yesterday, last week, ago) → тільки Past Simple." },
+    drill: [
+      ["I ___ my keys. I can't open the door.", ["have lost", "lost", "lose"], 0, "Результат зараз (не можу відкрити) → Present Perfect."],
+      ["___ you ever ___ to London?", ["Have / been", "Did / be", "Have / went"], 0, "ever = досвід за життя: Have + been."],
+      ["She ___ here since 2022.", ["has worked", "worked", "works"], 0, "since — від минулого до зараз → has worked."],
+      ["We ___ the film last night.", ["watched", "have watched", "watch"], 0, "last night — конкретний час → Past Simple."],
+      ["I haven't finished it ___.", ["yet", "already", "ago"], 0, "yet — у запереченнях і питаннях, у кінці речення."],
+      ["He ___ just ___.", ["has / arrived", "is / arrived", "did / arrive"], 0, "just — щойно: has + 3-тя форма."]
+    ]},
+  { id: "pas", unit: 2, name: "Past Simple", short: "завершена подія",
+    idea: "Сталося в минулому і закінчилось. Часто є точний час.",
+    when: ["Подія в минулому: I finished my homework yesterday.", "Послідовність дій: I woke up, had breakfast and left.", "Історія: We met two years ago."],
+    formula: [["+", "I work<em>ed</em> · I <em>went</em> (неправильні — друга форма)"], ["−", "I <em>didn't</em> work · I <em>didn't</em> go"], ["?", "<em>Did</em> you work? · <em>Did</em> you go?"]],
+    markers: ["yesterday", "last week", "two days ago", "in 2020", "when I was a kid"],
+    examples: [["I finished my homework yesterday.", "Я закінчив домашнє вчора."], ["We met two years ago.", "Ми познайомились два роки тому."], ["Did you see that film?", "Ти бачив той фільм?"]],
+    trap: { x: "Did you went there?", ok: "Did you go there?", note: "Після did дієслово завжди в першій формі. Минуле вже показує did." },
+    drill: [
+      ["I ___ him yesterday.", ["saw", "see", "have seen"], 0, "yesterday → Past Simple, see → saw."],
+      ["We ___ to Lviv last summer.", ["went", "go", "have gone"], 0, "last summer → went."],
+      ["___ you call your mom?", ["Did", "Do", "Were"], 0, "Питання в минулому → Did."],
+      ["She didn't ___ the answer.", ["know", "knew", "knows"], 0, "Після didn't — перша форма."],
+      ["They ___ the game two days ago.", ["won", "win", "have won"], 0, "ago → Past Simple, win → won."],
+      ["I ___ tired last night.", ["was", "were", "am"], 0, "I → was."]
+    ]},
+  { id: "pac", unit: 2, name: "Past Continuous", short: "процес у минулому",
+    idea: "Що тривало в певний момент у минулому. Часто фон для іншої події.",
+    when: ["Момент у минулому: At 10 pm we were watching a movie.", "Фон + подія: I was reading when you called.", "Дві дії паралельно: While she was cooking, I was cleaning."],
+    formula: [["+", "I / he <em>was</em> working · we / they <em>were</em> working"], ["−", "I <em>wasn't</em> working · they <em>weren't</em> working"], ["?", "<em>Were</em> you working? · <em>Was</em> he working?"]],
+    markers: ["at 8 pm yesterday", "while", "when", "all evening"],
+    examples: [["I was reading when you called.", "Я читав, коли ти подзвонив."], ["At 10 pm we were watching a movie.", "О 22:00 ми дивились фільм."], ["What were you doing?", "Що ти робив?"]],
+    trap: { x: "When you called, I read.", ok: "When you called, I was reading.", note: "Довга дія-фон → was / were + -ing, коротка подія → Past Simple." },
+    drill: [
+      ["I ___ a shower when the phone rang.", ["was taking", "took", "am taking"], 0, "Довга дія, яку перервали → was + -ing."],
+      ["What ___ you doing at 9 pm yesterday?", ["were", "did", "was"], 0, "you → were."],
+      ["While she ___, I cooked dinner.", ["was sleeping", "slept", "sleeps"], 0, "while — процес → was sleeping."],
+      ["They ___ football at that moment.", ["were playing", "played", "was playing"], 0, "they → were + -ing."],
+      ["He ___ when I came in.", ["wasn't working", "didn't working", "not working"], 0, "Заперечення: wasn't + -ing."]
+    ]},
+  { id: "will", unit: 3, name: "Future: will", short: "рішення, обіцянка",
+    idea: "Вирішив прямо зараз, пообіцяв або припускаєш.",
+    when: ["Рішення в момент розмови: The phone is ringing. — I'll get it!", "Обіцянка: I won't tell anyone.", "Прогноз, думка: I think it will be cold tomorrow."],
+    formula: [["+", "I / he / they <em>will</em> help (I'll, he'll)"], ["−", "I <em>won't</em> help"], ["?", "<em>Will</em> you help?"]],
+    markers: ["I think", "probably", "maybe", "tomorrow", "I promise"],
+    examples: [["I'll call you later.", "Я подзвоню тобі пізніше."], ["It will be cold tomorrow.", "Завтра буде холодно."], ["I won't tell anyone.", "Я нікому не скажу."]],
+    trap: { x: "I will to help you.", ok: "I will help you.", note: "Після will — дієслово без to." },
+    drill: [
+      ["The phone is ringing. — I ___ it!", ["'ll get", "am going to get", "get"], 0, "Рішення прямо зараз → will."],
+      ["I think it ___ sunny tomorrow.", ["will be", "is being", "be"], 0, "I think + прогноз → will."],
+      ["I promise I ___ late again.", ["won't be", "am not", "don't be"], 0, "Обіцянка → won't."],
+      ["___ you help me with this bag?", ["Will", "Do", "Are"], 0, "Прохання про майбутнє → Will you…?"],
+      ["Maybe she ___ come.", ["will", "is", "does"], 0, "maybe + припущення → will."]
+    ]},
+  { id: "gt", unit: 3, name: "Future: going to", short: "план, намір",
+    idea: "Ти вже вирішив і запланував. Або бачиш, що зараз станеться.",
+    when: ["План: I'm going to start training on Wednesday.", "Намір: She's going to learn Spanish.", "Видно, що станеться: Look at those clouds — it's going to rain."],
+    formula: [["+", "I <em>am going to</em> study · he <em>is going to</em> study"], ["−", "I'm <em>not going to</em> study"], ["?", "<em>Are</em> you <em>going to</em> study?"]],
+    markers: ["tonight", "this weekend", "next year", "Look!"],
+    examples: [["I'm going to start training on Wednesday.", "Я почну тренуватись у середу."], ["Are you going to watch the game?", "Ти будеш дивитися гру?"], ["It's going to rain.", "Зараз піде дощ."]],
+    trap: { x: "I going to study tonight.", ok: "I'm going to study tonight.", note: "Без am / is / are не працює." },
+    drill: [
+      ["I ___ visit my parents this weekend. It's already planned.", ["am going to", "will", "going to"], 0, "Уже заплановано → going to."],
+      ["Look at the sky! It ___ rain.", ["is going to", "will", "goes to"], 0, "Бачиш ознаки → going to."],
+      ["What ___ you going to do after university?", ["are", "will", "do"], 0, "you → are going to."],
+      ["She ___ going to buy a car.", ["isn't", "doesn't", "won't"], 0, "Заперечення: is not going to."],
+      ["We ___ to start training on Wednesday.", ["are going", "will going", "go"], 0, "We are going to + дієслово."]
+    ]}
+];
+const UNITS = [[1, "Розділ 1", "Теперішній час"], [2, "Розділ 2", "Минулий час"], [3, "Розділ 3", "Майбутній час"]];
+
+/* ================= ДАНІ: СЛОВА ================= */
+const W = s => s.split(";").map(x => x.split("|").map(y => y.trim())).filter(x => x[0] && x[1]);
+const WORDS_RAW = {
+  "Дім": `house|будинок; apartment|квартира; room|кімната; bedroom|спальня; living room|вітальня; bathroom|ванна кімната; kitchen|кухня; hallway|коридор; balcony|балкон; floor|підлога, поверх; ceiling|стеля; wall|стіна; window|вікно; door|двері; stairs|сходи; roof|дах; furniture|меблі; couch|диван; bed|ліжко; wardrobe|шафа для одягу; shelf|полиця; mirror|дзеркало; carpet|килим; curtains|штори; light switch|вимикач; socket|розетка; key|ключ; rent|оренда; landlord|орендодавець; to clean up|прибирати; to do the laundry|прати; to take out the trash|винести сміття`,
+  "Кухня і їжа": `fridge|холодильник; stove|плита; oven|духовка; microwave|мікрохвильовка; sink|раковина; pan|сковорідка; pot|каструля; plate|тарілка; bowl|миска; cup|чашка; glass|склянка; fork|виделка; spoon|ложка; knife|ніж; bread|хліб; butter|вершкове масло; cheese|сир; eggs|яйця; meat|м'ясо; chicken|курка; fish|риба; rice|рис; potatoes|картопля; vegetables|овочі; fruit|фрукти; salt|сіль; pepper|перець; sugar|цукор; to cook|готувати; to boil|варити; to fry|смажити; to bake|пекти; leftovers|залишки їжі`,
+  "Кафе і ресторан": `menu|меню; waiter|офіціант; table for two|столик на двох; to order|замовляти; starter|закуска; main course|основна страва; dessert|десерт; drink|напій; still water|вода без газу; sparkling water|газована вода; the check|рахунок у кафе; tip|чайові; to go|з собою; for here|тут, на місці; refill|долив напою; well done|добре просмажене; medium rare|з кров'ю; spicy|гостре; vegetarian|вегетаріанський; reservation|бронювання; I'd like...|я б хотів...; Can I get...?|Можна мені...?; Is this seat taken?|Це місце зайняте?; delicious|смачний; to split the bill|розділити рахунок`,
+  "Магазин і гроші": `store|магазин; grocery store|продуктовий магазин; mall|торговий центр; cashier|касир; checkout|каса; cart|візок; bag|пакет, сумка; price|ціна; discount|знижка; sale|розпродаж; cash|готівка; card|картка; change|решта; receipt|чек; to pay|платити; to spend|витрачати; to save|заощаджувати; cheap|дешевий; expensive|дорогий; to try on|приміряти; size|розмір; refund|повернення грошей; How much is it?|Скільки це коштує?; out of stock|немає в наявності; salary|зарплата; loan|кредит, позика`,
+  "Родина": `family|сім'я; parents|батьки; mother|мати; father|батько; son|син; daughter|донька; brother|брат; sister|сестра; grandparents|бабуся й дідусь; grandson|онук; aunt|тітка; uncle|дядько; cousin|двоюрідний брат або сестра; nephew|племінник; niece|племінниця; husband|чоловік у шлюбі; wife|дружина; relatives|родичі; in-laws|родичі з боку чоловіка чи дружини; only child|єдина дитина; twins|близнюки; to raise|виховувати; to grow up|дорослішати; to get married|одружитися; boyfriend|хлопець; girlfriend|дівчина`,
+  "Люди і характер": `friend|друг; best friend|найкращий друг; neighbor|сусід; stranger|незнайомець; coworker|колега; boss|начальник; kind|добрий; friendly|привітний; funny|смішний; smart|розумний; honest|чесний; brave|сміливий; lazy|лінивий; shy|сором'язливий; rude|грубий; polite|ввічливий; selfish|егоїстичний; generous|щедрий; stubborn|упертий; reliable|надійний; confident|впевнений; patient|терплячий; determined|рішучий; easygoing|легкий у спілкуванні`,
+  "Тіло і здоров'я": `head|голова; face|обличчя; eye|око; ear|вухо; nose|ніс; mouth|рот; tooth|зуб; neck|шия; shoulder|плече; arm|рука від плеча; hand|кисть руки; finger|палець; chest|груди; back|спина; stomach|живіт, шлунок; leg|нога; knee|коліно; foot|стопа; headache|головний біль; a cold|застуда; fever|висока температура; cough|кашель; pain|біль; injury|травма; doctor|лікар; pharmacy|аптека; medicine|ліки; to feel sick|погано почуватися; to get better|одужувати`,
+  "Одяг": `clothes|одяг; T-shirt|футболка; shirt|сорочка; sweater|светр; hoodie|худі; jacket|куртка; coat|пальто; pants|штани; jeans|джинси; shorts|шорти; dress|сукня; skirt|спідниця; shoes|взуття; sneakers|кросівки; boots|черевики; socks|шкарпетки; underwear|білизна; hat|капелюх, шапка; cap|кепка; gloves|рукавиці; scarf|шарф; belt|ремінь; pocket|кишеня; to wear|носити одяг; to put on|вдягати; to take off|знімати; tight|тісний; loose|вільний`,
+  "Авто і дорога": `car|автомобіль; driver|водій; driver's license|водійські права; steering wheel|кермо; seat belt|ремінь безпеки; brakes|гальма; tire|шина; trunk|багажник; hood|капот; engine|двигун; gas|бензин; gas station|заправка; to fill up|заправити повний бак; parking lot|парковка; to park|паркуватися; traffic|дорожній рух; traffic jam|затор; traffic light|світлофор; highway|шосе; road|дорога; intersection|перехрестя; to turn left|повернути ліворуч; to speed|перевищувати швидкість; ticket|штраф; flat tire|спущене колесо; to give a ride|підвезти; mechanic|автомеханік; accident|аварія`,
+  "Місто": `city|місто; downtown|центр міста; street|вулиця; sidewalk|тротуар; crosswalk|пішохідний перехід; corner|ріг вулиці; block|квартал; building|будівля; bank|банк; post office|пошта; hospital|лікарня; police station|поліцейська дільниця; library|бібліотека; park|парк; bus stop|зупинка; subway|метро; neighborhood|район; square|площа; bridge|міст; sign|знак, вивіска; nearby|поблизу; far away|далеко; straight ahead|прямо; next to|поруч з; across from|навпроти; Excuse me, where is...?|Перепрошую, де...?`,
+  "Подорожі": `trip|поїздка; airport|аеропорт; flight|рейс; departure|відправлення; arrival|прибуття; boarding pass|посадковий талон; passport|паспорт; luggage|багаж; carry-on|ручна поклажа; customs|митниця; gate|вихід на посадку; delay|затримка; to book|бронювати; round trip|туди й назад; one way|в один бік; hotel|готель; check-in|реєстрація, заселення; check-out|виселення; currency|валюта; landmark|пам'ятка; tourist|турист; map|мапа; to get lost|заблукати; souvenir|сувенір; abroad|за кордоном`,
+  "Робота і навчання": `job|робота, посада; office|офіс; meeting|нарада; deadline|кінцевий термін; task|завдання; schedule|розклад; shift|зміна; day off|вихідний; to hire|наймати; to fire|звільняти; to quit|звільнитися самому; interview|співбесіда; experience|досвід; skill|навичка; university|університет; class|заняття, пара; lecture|лекція; homework|домашнє завдання; exam|іспит; grade|оцінка; to pass|скласти; to fail|провалити; to study|вчитися; to graduate|закінчити навчання; teacher|викладач`,
+  "Спорт": `gym|спортзал; workout|тренування; to work out|тренуватися; coach|тренер; pull-ups|підтягування; push-ups|віджимання; sit-ups|скручування на прес; squats|присідання; bench press|жим лежачи; weights|обтяження; set|підхід; rep|повторення; to stretch|розтягуватися; warm-up|розминка; muscles|м'язи; strength|сила; stamina|витривалість; to run|бігати; race|забіг; team|команда; game|гра, матч; to win|перемагати; to lose|програвати; score|рахунок; sore|що болить після тренування; to get in shape|прийти у форму`,
+  "Погода і природа": `weather|погода; sunny|сонячно; cloudy|хмарно; rain|дощ; snow|сніг; wind|вітер; storm|буря, гроза; fog|туман; cold|холодний; hot|спекотний; warm|теплий; freezing|морозно; temperature|температура; forecast|прогноз; season|пора року; spring|весна; summer|літо; fall|осінь; winter|зима; sky|небо; sun|сонце; tree|дерево; river|річка; lake|озеро; mountain|гора; forest|ліс; beach|пляж`,
+  "Час і дати": `today|сьогодні; tomorrow|завтра; yesterday|вчора; the day after tomorrow|післязавтра; morning|ранок; afternoon|час після обіду; evening|вечір; night|ніч; week|тиждень; weekend|вихідні; month|місяць; year|рік; Monday|понеділок; Wednesday|середа; Friday|п'ятниця; Saturday|субота; Sunday|неділя; early|рано; late|пізно; on time|вчасно; soon|скоро; later|пізніше; always|завжди; usually|зазвичай; never|ніколи; What time is it?|Котра година?; half past six|пів на сьому; a quarter to five|за чверть п'ята`,
+  "Почуття": `happy|щасливий; sad|сумний; angry|злий; upset|засмучений; tired|втомлений; bored|якому нудно; excited|радісно схвильований; nervous|нервовий; worried|стурбований; scared|наляканий; surprised|здивований; proud|гордий; jealous|ревнивий, заздрісний; lonely|самотній; calm|спокійний; stressed|у стресі; confused|розгублений; embarrassed|присоромлений; grateful|вдячний; disappointed|розчарований; relaxed|розслаблений; motivated|вмотивований; to miss someone|сумувати за кимось; to be in a good mood|бути в гарному настрої`,
+  "Дієслова щодня": `to wake up|прокидатися; to get up|вставати; to take a shower|приймати душ; to brush your teeth|чистити зуби; to get dressed|одягатися; to have breakfast|снідати; to leave|виходити, йти; to come back|повертатися; to get home|дістатися додому; to go to bed|лягати спати; to fall asleep|заснути; to look for|шукати; to find|знаходити; to borrow|позичати (брати); to lend|позичати (давати); to bring|приносити; to take|брати; to forget|забувати; to remember|пам'ятати; to wait|чекати; to call|дзвонити; to text|писати повідомлення; to need|потребувати; to try|намагатися; to decide|вирішувати; to help|допомагати; to tell|розповідати`,
+  "Телефон і інтернет": `phone|телефон; smartphone|смартфон; charger|зарядка; battery|батарея; to charge|заряджати; signal|сигнал, зв'язок; Wi-Fi password|пароль від вайфаю; app|застосунок; to download|завантажувати; to update|оновлювати; screen|екран; message|повідомлення; voice message|голосове повідомлення; to send|надсилати; to post|публікувати; link|посилання; account|акаунт; to log in|увійти в акаунт; to sign up|зареєструватися; to follow|підписатися; notification|сповіщення; to call back|передзвонити; to hang up|покласти слухавку; missed call|пропущений дзвінок`,
+  "Жива мова": `no worries|не переймайся; my bad|моя провина; for real?|серйозно?; I'm down|я за; it's up to you|вирішуй сам; to hang out|проводити час разом; to figure out|розібратися; to get along|ладнати; to catch up|поговорити після перерви; take it easy|не напружуйся; it makes sense|це логічно; no way!|не може бути!; that's awesome|це круто; I'm into it|мені це подобається; never mind|не зважай; what's up?|як справи?; same here|у мене так само; sounds good|домовились, звучить добре; I'm in|я в ділі; hang on|зачекай; got it|зрозумів; no big deal|нічого страшного; to be broke|бути без грошей; to chill|розслаблятися; a piece of cake|дуже легко; my pleasure|з радістю, будь ласка`,
+  "Армія": `army|армія; soldier|солдат; officer|офіцер; sergeant|сержант; private|рядовий; rank|звання; unit|підрозділ; squad|відділення; platoon|взвод; company|рота; battalion|батальйон; commander|командир; order|наказ; mission|завдання, місія; training|підготовка; boot camp|учебка; uniform|форма; helmet|шолом; body armor|бронежилет; weapon|зброя; rifle|гвинтівка; ammunition|боєприпаси; radio|рація; to report|доповідати; to salute|віддавати честь; duty|обов'язок, служба; on duty|на чергуванні; guard|вартовий; base|база; barracks|казарма; deployment|відправка в зону завдань; enemy|ворог; ally|союзник; casualty|втрата (поранений чи загиблий); first aid|перша допомога; tourniquet|турнікет; veteran|ветеран; to enlist|піти на службу; contract|контракт; Roger that|прийнято; Copy|зрозумів (по рації)`,
+  "Банк": `bank account|банківський рахунок; checking account|поточний рахунок; savings account|ощадний рахунок; to deposit|покласти гроші на рахунок; to withdraw|зняти гроші; ATM|банкомат; PIN|пін-код; balance|залишок на рахунку; transfer|переказ; fee|комісія; interest|відсотки; interest rate|відсоткова ставка; credit card|кредитна картка; debit card|дебетова картка; credit score|кредитний рейтинг; mortgage|іпотека; debt|борг; to owe|бути винним; to pay off|виплатити повністю; installment|платіж частинами; budget|бюджет; income|дохід; expenses|витрати; tax|податок; insurance|страхування; to apply for|подавати заявку на; ID|посвідчення особи; signature|підпис; statement|виписка; exchange rate|курс обміну`,
+  "Лікарня": `emergency room|відділення невідкладної допомоги; ambulance|швидка; nurse|медсестра; surgeon|хірург; patient|пацієнт; prescription|рецепт; pill|пігулка; shot|укол; blood test|аналіз крові; X-ray|рентген; surgery|операція; to examine|оглядати; symptom|симптом; diagnosis|діагноз; allergy|алергія; bruise|синець; cut|поріз; broken bone|перелом; sprain|розтягнення; bleeding|кровотеча; swelling|набряк; dizzy|з запамороченням; to throw up|блювати; to recover|одужати; health insurance|медична страховка; side effects|побічні ефекти; Where does it hurt?|Де болить?; It hurts here|Болить тут`,
+  "Сварка й емоції": `to argue|сперечатися; argument|сварка; to yell|кричати; to blame|звинувачувати; to apologize|вибачатися; I'm sorry|вибач; It's not my fault|Це не моя провина; Calm down|Заспокойся; Leave me alone|Дай мені спокій; Mind your own business|Не лізь не в свої справи; That's not fair|Це несправедливо; Whatever|Та байдуже; I don't care|Мені все одно; Are you kidding me?|Ти знущаєшся?; You're right|Ти маєш рацію; Let's talk|Давай поговоримо; to make up|помиритися; to forgive|пробачати; to get over it|пережити, відпустити; annoying|дратівливий; to be mad at|злитися на; furious|розлючений; hurt|ображений; misunderstanding|непорозуміння; Fair enough|Справедливо, згоден`,
+  "Частотні дієслова": `to be|бути; to have|мати; to do|робити; to say|казати; to go|йти; to get|отримувати, ставати; to make|створювати, робити; to know|знати; to think|думати; to see|бачити; to come|приходити; to want|хотіти; to look|дивитися; to use|використовувати; to give|давати; to work|працювати; to feel|відчувати; to put|класти; to mean|означати; to keep|тримати, зберігати; to let|дозволяти; to begin|починати; to seem|здаватися; to show|показувати; to hear|чути; to play|грати; to move|рухатися; to live|жити; to believe|вірити; to happen|ставатися; to write|писати; to sit|сидіти; to stand|стояти; to pay|платити; to meet|зустрічати; to learn|вчити; to change|змінювати; to understand|розуміти; to speak|говорити; to read|читати; to grow|рости; to open|відкривати; to walk|ходити пішки; to offer|пропонувати; to buy|купувати; to sell|продавати; to ask|питати; to answer|відповідати; to choose|обирати; to explain|пояснювати`,
+  "Частотні прикметники": `good|добрий; bad|поганий; new|новий; old|старий; big|великий; small|малий; long|довгий; short|короткий; high|високий; low|низький; young|молодий; important|важливий; different|різний; same|той самий; easy|легкий; hard|складний; right|правильний; wrong|неправильний; possible|можливий; free|вільний, безкоштовний; full|повний; empty|порожній; clean|чистий; dirty|брудний; quiet|тихий; loud|гучний; fast|швидкий; slow|повільний; strong|сильний; weak|слабкий; safe|безпечний; dangerous|небезпечний; ready|готовий; sure|певний; real|справжній; simple|простий; huge|величезний; tiny|крихітний; beautiful|гарний; ugly|негарний; rich|багатий; poor|бідний; famous|відомий; necessary|необхідний; available|доступний; serious|серйозний`,
+  "Фразові дієслова": `to find out|дізнатися; to look after|доглядати; to look forward to|чекати з нетерпінням; to run out of|закінчитися (про запас); to turn on|увімкнути; to turn off|вимкнути; to turn down|відмовити, зробити тихіше; to pick up|підібрати, забрати; to set up|налаштувати; to show up|з'явитися; to break down|зламатися; to come up with|придумати; to go on|продовжувати; to get over|оговтатися від; to put off|відкладати; to call off|скасувати; to fill out|заповнити форму; to check out|перевірити; to sort out|владнати; to hold on|зачекати; to keep up with|встигати за; to make up|вигадати; to take care of|подбати про; to look up|знайти в довіднику; to point out|вказати на; to bring up|підняти тему; to end up|зрештою опинитися; to get rid of|позбутися; to put up with|терпіти; to run into|випадково зустріти`,
+  "Зв'язки і прийменники": `because|тому що; although|хоча; however|однак; so|тому, отже; but|але; unless|якщо не; if|якщо; while|поки, тоді як; until|доки не; before|перед, до; after|після; during|протягом; instead of|замість; besides|окрім того; in front of|перед (місце); behind|позаду; between|між; above|над; below|нижче; inside|всередині; outside|зовні; through|крізь; toward|у напрямку до; anyway|у будь-якому разі; actually|насправді; probably|мабуть; especially|особливо; finally|нарешті; at least|принаймні; by the way|до речі`,
+  "Тварини": `dog|собака; cat|кіт; puppy|цуценя; kitten|кошеня; bird|птах; horse|кінь; cow|корова; pig|свиня; sheep|вівця; goat|коза; rabbit|кролик; mouse|миша; rat|щур; bear|ведмідь; wolf|вовк; fox|лисиця; deer|олень; lion|лев; tiger|тигр; snake|змія; frog|жаба; duck|качка; eagle|орел; owl|сова; bee|бджола; spider|павук; mosquito|комар; pet|домашній улюбленець; to feed|годувати`,
+  "Професії": `lawyer|юрист; engineer|інженер; programmer|програміст; police officer|поліцейський; firefighter|пожежник; pilot|пілот; electrician|електрик; plumber|сантехнік; builder|будівельник; farmer|фермер; chef|кухар; salesperson|продавець; manager|менеджер; accountant|бухгалтер; journalist|журналіст; designer|дизайнер; scientist|науковець; cleaner|прибиральник; hairdresser|перукар; dentist|стоматолог; vet|ветеринар; translator|перекладач; freelancer|фрилансер; security guard|охоронець; delivery driver|кур'єр`,
+  "Розваги": `movie|фільм; TV show|серіал; episode|епізод; actor|актор; music|музика; song|пісня; band|гурт; concert|концерт; party|вечірка; club|клуб; video game|відеогра; book|книга; hobby|хобі; photo|фото; to take a picture|сфотографувати; museum|музей; theater|театр; fun|веселощі; boring|нудний; to have fun|розважатися; to dance|танцювати; to sing|співати; to listen to|слухати; to watch|дивитися; streaming|стрімінг; spoiler|спойлер`,
+  "Свята і події": `holiday|свято; birthday|день народження; Christmas|Різдво; New Year|Новий рік; Easter|Великдень; Thanksgiving|День подяки; wedding|весілля; anniversary|річниця; gift|подарунок; celebration|святкування; to celebrate|святкувати; invitation|запрошення; guest|гість; cake|торт; candles|свічки; Happy birthday!|З днем народження!; Congratulations!|Вітаю!; Cheers!|Будьмо!; funeral|похорон; graduation|випускний; vacation|відпустка; fireworks|феєрверк`,
+  "Техніка і комп'ютер": `computer|комп'ютер; laptop|ноутбук; keyboard|клавіатура; mouse (computer)|комп'ютерна мишка; monitor|монітор; file|файл; folder|папка; to save a file|зберегти файл; to delete|видалити; to copy|копіювати; to paste|вставити; to install|встановити; software|програмне забезпечення; hardware|апаратне забезпечення; server|сервер; network|мережа; password|пароль; to type|набирати текст; to click|клацнути; to restart|перезавантажити; bug|помилка в програмі; backup|резервна копія; settings|налаштування; storage|пам'ять, сховище; printer|принтер`,
+  "Цілі й розвиток": `goal|ціль; habit|звичка; effort|зусилля; to improve|покращувати; to achieve|досягати; to give up|здаватися; to keep going|не зупинятися; progress|прогрес; discipline|дисципліна; dream|мрія; plan|план; challenge|виклик; success|успіх; failure|невдача; mistake|помилка; to practice|практикуватися; to focus|зосереджуватися; to be ready|бути готовим; independent|незалежний; future|майбутнє`
+};
+const GROUPS = [
+  ["Ядро мови", ["Частотні дієслова", "Частотні прикметники", "Фразові дієслова", "Зв'язки і прийменники", "Жива мова"]],
+  ["Побут", ["Дім", "Кухня і їжа", "Одяг", "Дієслова щодня", "Час і дати", "Погода і природа", "Тварини"]],
+  ["Люди і почуття", ["Родина", "Люди і характер", "Почуття", "Сварка й емоції", "Цілі й розвиток"]],
+  ["Місто і справи", ["Кафе і ресторан", "Магазин і гроші", "Банк", "Місто", "Авто і дорога", "Подорожі", "Лікарня", "Тіло і здоров'я"]],
+  ["Робота і служба", ["Робота і навчання", "Професії", "Армія", "Техніка і комп'ютер", "Телефон і інтернет"]],
+  ["Дозвілля", ["Спорт", "Розваги", "Свята і події"]]
+];
+const CAT_COLS =["#2b3d66", "#5b86e5", "#3aa864", "#7a4a2a", "#e0484e", "#f2a93b", "#3d5a8f", "#8a5bb8"];
+const WORDS = Object.fromEntries(Object.entries(WORDS_RAW).map(([k, s], i) => [k, { col: CAT_COLS[i % CAT_COLS.length], list: W(s) }]));
+const ALL = (() => { const m = new Map(); Object.values(WORDS).forEach(c => c.list.forEach(w => { if (!m.has(w[0])) m.set(w[0], w); })); return [...m.values()]; })();
+
+/* ================= ЗБЕРЕЖЕННЯ (лише в цьому браузері) ================= */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("mp2_" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("mp2_" + k, JSON.stringify(v)); } catch {} }
+};
+const dayKey = (off = 0) => { const d = new Date(Date.now() - off * 864e5); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+const GOAL = 50;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; if (m === 1 && h !== 11) return a; if (m >= 2 && m <= 4 && (h < 12 || h > 14)) return b; return c; };
+const icon = (id, cls = "") => `<svg class="${cls}"><use href="#${id}"/></svg>`;
+
+function getProg() { return store.get("prog", { xp: 0, days: {}, stars: {}, wl: {}, wmiss: {} }); }
+function setProg(p) { store.set("prog", p); }
+function addXp(n) {
+  const p = getProg(); p.xp += n; const k = dayKey(); p.days[k] = (p.days[k] || 0) + n; setProg(p); renderStats(true);
+}
+function streakOf(p) {
+  let s = 0, off = p.days[dayKey()] ? 0 : 1;
+  while (p.days[dayKey(off)]) { s++; off++; }
+  return s;
+}
+function renderStats(anim) {
+  const p = getProg(), today = p.days[dayKey()] || 0, st = streakOf(p);
+  document.getElementById("streakNum").textContent = st;
+  document.getElementById("streakPill").classList.toggle("off", !today);
+  document.getElementById("xpNum").textContent = p.xp;
+  const frac = Math.min(1, today / GOAL);
+  document.getElementById("ringFg").style.strokeDashoffset = 87.96 * (1 - frac);
+  document.getElementById("ringTxt").textContent = today >= GOAL ? "✓" : today;
+  document.getElementById("goalBar").style.width = frac * 100 + "%";
+  document.getElementById("goalTxt").textContent = today >= GOAL ? `Ціль виконано: ${today} досвіду` : `${today} / ${GOAL} досвіду`;
+  document.getElementById("streakBig").textContent = `${st} ${plural(st, "день", "дні", "днів")}`;
+  const names = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+  let w = "";
+  for (let i = 6; i >= 0; i--) { const d = new Date(Date.now() - i * 864e5); w += `<span>${names[d.getDay()]}<i class="${p.days[dayKey(i)] ? "on" : ""}"></i></span>`; }
+  document.getElementById("week").innerHTML = w;
+  const done = TENSES.filter(t => (p.stars[t.id] || 0) >= 4).length;
+  document.getElementById("doneBig").textContent = `${done} / ${TENSES.length}`;
+  if (anim) { const x = document.getElementById("xpPill"); x.classList.remove("bump"); void x.offsetWidth; x.classList.add("bump"); }
+}
+
+/* ================= ЗВУК і ОЗВУЧКА ================= */
+/* М'які звуки: тихі синусоїди, повільна атака, теплий фільтр і легке відлуння */
+let soundOn = store.get("sound", true), actx = null, bus = null;
+function audioBus() {
+  if (bus) return bus;
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  const master = actx.createGain(); master.gain.value = 0.7;
+  const lp = actx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 6000;
+  lp.connect(master); master.connect(actx.destination);
+  bus = lp; return bus;
+}
+function soft(notes, { gap = 0.09, decay = 0.7, vol = 0.12, cutoff = null, type = "sine", bright = 0.12 } = {}) {
+  if (!soundOn) return;
+  try {
+    const out = audioBus(); if (actx.state === "suspended") actx.resume();
+    notes.forEach((f, i) => {
+      const t = actx.currentTime + 0.01 + i * gap;
+      const g = actx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+      let dest = out;
+      if (cutoff) { const f2 = actx.createBiquadFilter(); f2.type = "lowpass"; f2.frequency.value = cutoff; f2.connect(out); dest = f2; }
+      g.connect(dest);
+      const o1 = actx.createOscillator(); o1.type = type; o1.frequency.value = f;
+      const o2 = actx.createOscillator(); o2.type = "sine"; o2.frequency.value = f * 2;
+      const g2 = actx.createGain(); g2.gain.value = bright;
+      o1.connect(g); o2.connect(g2).connect(g);
+      [o1, o2].forEach(o => { o.start(t); o.stop(t + decay + 0.05); });
+    });
+  } catch {}
+}
+/* Ігрові звуки: чіткі, короткі, без відлуння */
+const sfx = {
+  ok: () => soft([880, 1318.5], { gap: 0.07, decay: 0.28, vol: 0.16, type: "triangle", bright: 0.25 }),
+  no: () => soft([196, 155.56], { gap: 0.1, decay: 0.22, vol: 0.16, type: "triangle", bright: 0.05, cutoff: 900 }),
+  win: () => soft([523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5], { gap: 0.09, decay: 0.3, vol: 0.14, type: "triangle", bright: 0.2 }),
+  tap: () => soft([1400], { decay: 0.05, vol: 0.05, type: "sine", bright: 0 })
+};
+function renderSoundBtn() { const b = document.getElementById("soundBtn"); b.innerHTML = icon(soundOn ? "i-sound" : "i-mute"); b.setAttribute("aria-label", soundOn ? "Вимкнути звук" : "Увімкнути звук"); }
+document.getElementById("soundBtn").onclick = () => { soundOn = !soundOn; store.set("sound", soundOn); renderSoundBtn(); sfx.tap(); };
+const canSpeak = "speechSynthesis" in window;
+function say(text) { if (!canSpeak) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = "en-US"; u.rate = 0.92; speechSynthesis.speak(u); } catch {} }
+const sayBtn = (text, sm) => canSpeak ? `<button type="button" class="say${sm ? " sm" : ""}" data-say="${esc(text)}" aria-label="Прослухати">${icon("i-speaker")}</button>` : "";
+document.addEventListener("click", e => { const b = e.target.closest("[data-say]"); if (b) say(b.dataset.say); });
+
+/* ================= КОНФЕТІ ================= */
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = document.getElementById("confetti"), ctx = c.getContext("2d");
+  c.hidden = false; const W = c.width = innerWidth, H = c.height = innerHeight;
+  const cols = ["#f2a93b", "#3aa864", "#5b86e5", "#e0484e", "#2b3d66", "#ffd27a"];
+  const ps = Array.from({ length: 140 }, () => ({ x: W / 2 + (Math.random() - .5) * 120, y: H * .35, vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4, s: 6 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cols[Math.random() * cols.length | 0] }));
+  const t0 = performance.now();
+  (function frame(t) {
+    ctx.clearRect(0, 0, W, H);
+    ps.forEach(p => { p.vy += .35; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore(); });
+    if (t - t0 < 2800) requestAnimationFrame(frame); else { ctx.clearRect(0, 0, W, H); c.hidden = true; }
+  })(t0);
+}
+
+/* ================= НАВІГАЦІЯ ================= */
+const VIEWS = ["shlyakh", "slova", "rozmova"];
+function route() {
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "shlyakh";
+  VIEWS.forEach(n => { document.getElementById("view-" + n).hidden = n !== v; });
+  document.querySelectorAll("nav.tabs a").forEach(a => { if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+}
+addEventListener("hashchange", route);
+
+/* ================= ШЛЯХ ================= */
+const OFFS = [0, 70, 100, 70, 0, -70, -100, -70];
+function renderPath() {
+  const p = getProg();
+  const curIdx = TENSES.findIndex(t => (p.stars[t.id] || 0) < 4);
+  let html = "", k = 0, delay = 0;
+  UNITS.forEach(([u, lab, title], ui) => {
+    html += `<div class="unit"><div class="unit-head${ui ? " u" + (ui + 1) : ""}"><small>${lab}</small><b>${title}</b></div><div class="path">`;
+    TENSES.filter(t => t.unit === u).forEach(t => {
+      const i = TENSES.indexOf(t), stars = p.stars[t.id] || 0;
+      const cls = stars >= 4 ? "done" : i === curIdx ? "current" : "";
+      const ic = stars >= 4 ? "i-star" : i === curIdx ? "i-book" : "i-star";
+      const st = stars ? `<span class="stars">${[1,2,3,4,5].map(n => icon("i-star", n <= stars ? "" : "e")).join("")}</span>` : "";
+      html += `<div class="node-wrap" data-off="${OFFS[k % OFFS.length]}" style="left:${OFFS[k % OFFS.length]}px;animation-delay:${delay}ms">
+        ${i === curIdx ? `<span class="start-tip">${stars ? "Ще раз" : "Почати"}</span>` : ""}
+        <button type="button" class="node ${cls}" data-id="${t.id}" aria-label="${t.name}">${icon(ic)}</button>
+        <span class="node-label">${t.name}<small>${t.short}</small></span>${st}</div>`;
+      k++; delay += 70;
+    });
+    html += `</div></div>`;
+  });
+  const u = document.getElementById("units"); u.innerHTML = html;
+  u.querySelectorAll(".node").forEach(b => b.onclick = () => { sfx.tap(); openTense(b.dataset.id); });
+  if (innerWidth < 520) u.querySelectorAll(".node-wrap").forEach(n => { n.style.left = Math.round(+n.dataset.off * 0.55) + "px"; });
+}
+
+/* ================= УРОК (спільний рушій) ================= */
+let L = null;
+const $ = id => document.getElementById(id);
+function openLesson(cfg) {
+  L = { ...cfg, pos: 0, solved: 0, xp: 0, combo: 0, bestCombo: 0, firstMiss: new Set(), checked: false, sel: null, t0: Date.now() };
+  L.queue = L.items.map((_, i) => i);
+  L.total = L.items.length;
+  $("lesson").hidden = false; document.body.style.overflow = "hidden";
+  $("combo").textContent = ""; setBar();
+  if (L.theory) showTheory(); else showQ();
+}
+function closeLesson() { $("lesson").hidden = true; document.body.style.overflow = ""; L = null; renderPath(); renderCats(); renderStats(); }
+$("lClose").onclick = closeLesson;
+function setBar() { $("lBar").style.width = (L ? (L.solved / L.total) * 100 : 0) + "%"; }
+function foot(html, cls = "") { $("lFoot").className = "l-foot gutter " + cls; $("lFootIn").innerHTML = html; }
+function inner(html) { const el = $("lInner"); el.classList.remove("slide-in"); void el.offsetWidth; el.innerHTML = html; el.classList.add("slide-in"); $("lBody").scrollTop = 0; }
+
+function showTheory() {
+  const t = L.theory;
+  L.phase = "theory";
+  inner(`<div class="theory">
+    <span class="q-label">Нова тема</span>
+    <h2>${t.name}</h2><p class="idea">${t.idea}</p>
+    <div class="t-block"><h3>Коли вживати</h3><ul class="t-when">${t.when.map(w => `<li>${esc(w)}</li>`).join("")}</ul></div>
+    <div class="t-block"><h3>Формула</h3><div class="formula">${t.formula.map(([s, f], i) => `<div><span class="sign s${i + 1}">${s}</span><code>${f}</code></div>`).join("")}</div></div>
+    <div class="t-block"><h3>Слова-підказки</h3><div class="markers">${t.markers.map(m => `<span>${esc(m)}</span>`).join("")}</div></div>
+    <div class="t-block"><h3>Приклади</h3><div class="ex">${t.examples.map(([e, u]) => `<div>${sayBtn(e, true)}<p>${esc(e)}<span>${esc(u)}</span></p></div>`).join("")}</div></div>
+    <div class="t-block"><h3>Типова помилка</h3><div class="trap"><span class="x">${esc(t.trap.x)}</span><span class="ok">${esc(t.trap.ok)}</span><small>${esc(t.trap.note)}</small></div></div>
+  </div>`);
+  foot(`<span class="muted">${L.total} завдань · до ${L.total * 10} досвіду</span><button type="button" class="b3d green" id="goBtn">Почати тренування</button>`);
+  $("goBtn").onclick = () => { sfx.tap(); showQ(); };
+  $("goBtn").focus();
+}
+function showQ() {
+  L.phase = "q"; L.checked = false; L.sel = null;
+  const it = L.items[L.queue[L.pos]];
+  it.shuffled = shuffle(it.opts.map((o, i) => ({ o, right: i === it.right })));
+  const isWord = L.kind === "word";
+  const head = isWord
+    ? `<span class="q-label">${L.dir === "en" ? "Обери переклад" : "Як це англійською?"}</span><div class="big-word">${esc(it.q)}${L.dir === "en" ? sayBtn(it.q) : ""}</div>`
+    : `<span class="q-label">${L.firstMiss.has(L.queue[L.pos]) ? "Ще раз, ти зможеш" : "Встав правильний варіант"}</span><div class="q-text"><span>${esc(it.q).replace("___", '<span class="gap">?</span>')}</span></div>`;
+  inner(`${head}<div class="tiles">${it.shuffled.map((o, k) => `<button type="button" class="tile" data-k="${k}"><kbd>${k + 1}</kbd><span>${esc(o.o)}</span></button>`).join("")}</div>`);
+  $("lInner").querySelectorAll(".tile").forEach(b => b.onclick = () => pick(+b.dataset.k));
+  foot(`<button type="button" class="b3d ghost" id="skipBtn">Пропустити</button><button type="button" class="b3d green" id="checkBtn" disabled>Перевірити</button>`);
+  $("checkBtn").onclick = check;
+  $("skipBtn").onclick = () => { L.sel = -1; check(); };
+}
+function pick(k) {
+  if (L.checked) return; L.sel = k; sfx.tap();
+  $("lInner").querySelectorAll(".tile").forEach((b, j) => b.classList.toggle("sel", j === k));
+  $("checkBtn").disabled = false;
+}
+function floatXp(n, el) {
+  const r = el.getBoundingClientRect(), f = document.createElement("div");
+  f.className = "xp-float"; f.textContent = "+" + n; f.style.left = (r.left + r.width / 2 - 20) + "px"; f.style.top = (r.top - 10) + "px";
+  document.body.appendChild(f); setTimeout(() => f.remove(), 1000);
+}
+function check() {
+  if (L.checked || L.sel === null) return; L.checked = true;
+  const idx = L.queue[L.pos], it = L.items[idx];
+  const ok = L.sel >= 0 && it.shuffled[L.sel].right;
+  const tiles = $("lInner").querySelectorAll(".tile");
+  tiles.forEach((b, j) => { b.disabled = true; b.classList.remove("sel"); if (it.shuffled[j].right && (ok || L.kind === "word" || true)) b.classList.add("ok"); else if (j === L.sel) b.classList.add("no"); });
+  const rightTxt = it.shuffled.find(o => o.right).o;
+  const full = it.full || (it.q.includes("___") ? it.q.replace("___", rightTxt.replace(/ \/ /g, " … ")) : null);
+  if (ok) {
+    L.solved++; L.combo++; L.bestCombo = Math.max(L.bestCombo, L.combo);
+    const gain = L.firstMiss.has(idx) ? 5 : 10 + (L.combo >= 3 ? 2 : 0);
+    L.xp += gain; addXp(gain); sfx.ok();
+    const okTile = [...tiles].find((b, j) => it.shuffled[j].right); if (okTile) floatXp(gain, okTile);
+    if (L.combo >= 3) { $("combo").textContent = L.combo + " поспіль"; $("combo").classList.remove("hot"); void $("combo").offsetWidth; $("combo").classList.add("hot"); }
+    if (L.kind === "word") wordStat(it.key, true);
+  } else {
+    L.combo = 0; $("combo").textContent = ""; sfx.no();
+    L.firstMiss.add(idx); L.queue.push(idx);
+    if (L.kind === "word") wordStat(it.key, false);
+  }
+  setBar();
+  const praise = ["Чудово!", "Так тримати!", "Точно!", "Красава!", "Ідеально!"];
+  const head = ok ? praise[Math.random() * praise.length | 0] : "Правильна відповідь:";
+  const line = ok ? (it.why || "") : `<span>${esc(rightTxt)}</span>`;
+  const sub = ok ? (full ? `<em>${esc(full)}</em>` : "") : `<em>${esc(it.why || "")}${full ? " " + esc(full) : ""}</em>`;
+  foot(`<div class="fb"><div class="fb-ico">${icon(ok ? "i-check" : "i-x")}</div><div class="fb-txt"><b>${head}</b>${ok && it.why ? `<span>${esc(it.why)}</span>` : (!ok ? line : "")}${sub}</div>${full && L.kind !== "word" ? sayBtn(full, true) : (L.kind === "word" ? sayBtn(it.en, true) : "")}</div>
+    <button type="button" class="b3d ${ok ? "green" : "red"}" id="nextBtn">Далі</button>`, ok ? "good" : "bad");
+  $("nextBtn").onclick = next; $("nextBtn").focus();
+}
+function next() {
+  L.pos++;
+  if (L.pos >= L.queue.length) return finish();
+  showQ();
+}
+function finish() {
+  L.phase = "end";
+  const firstTry = L.total - L.firstMiss.size;
+  const acc = Math.round(firstTry / L.total * 100);
+  const stars = Math.max(1, Math.round(firstTry / L.total * 5));
+  const bonus = L.firstMiss.size === 0 ? 10 : 0;
+  if (bonus) { L.xp += bonus; addXp(bonus); }
+  if (L.kind === "tense") { const p = getProg(); p.stars[L.id] = Math.max(p.stars[L.id] || 0, stars); setProg(p); }
+  const secs = Math.round((Date.now() - L.t0) / 1000), mm = Math.floor(secs / 60), ss = String(secs % 60).padStart(2, "0");
+  const title = acc === 100 ? "Бездоганно!" : acc >= 80 ? "Урок пройдено!" : "Є прогрес!";
+  inner(`<div class="finish">
+    <div class="trophy">${icon("i-trophy")}</div>
+    <h2>${title}</h2>
+    ${L.kind === "tense" ? `<div class="stars" style="gap:6px">${[1,2,3,4,5].map(n => `<svg style="width:30px;height:30px" class="${n <= stars ? "" : "e"}"><use href="#i-star"/></svg>`).join("")}</div>` : ""}
+    <p class="muted" style="margin:0">${bonus ? "Жодної помилки: +10 бонусу." : L.bestCombo >= 3 ? `Найкраща серія: ${L.bestCombo} поспіль.` : "Помилки ми повторили наприкінці, вони вже твої."}</p>
+    <div class="res-row">
+      <div class="res" style="animation-delay:.1s"><b>Досвід</b><span>+${L.xp}</span></div>
+      <div class="res g" style="animation-delay:.2s"><b>Точність</b><span>${acc}%</span></div>
+      <div class="res s" style="animation-delay:.3s"><b>Час</b><span>${mm}:${ss}</span></div>
+    </div></div>`);
+  setBar(); sfx.win(); confetti();
+  const p = getProg();
+  const nextT = L.kind === "tense" ? TENSES[TENSES.findIndex(t => t.id === L.id) + 1] : null;
+  foot(`<button type="button" class="b3d ghost" id="againBtn">${icon("i-redo")}</button>
+    <button type="button" class="b3d green" id="contBtn">${nextT && stars >= 4 ? "Далі: " + esc(nextT.name) : "Продовжити"}</button>`);
+  $("againBtn").setAttribute("aria-label", "Пройти ще раз");
+  $("againBtn").style.padding = "10px 14px"; $("againBtn").querySelector("svg").style.cssText = "width:22px;height:22px";
+  $("againBtn").onclick = () => { const k = L.kind, id = L.id, cat = L.cat, list = L.list, ai = L.ai; if (k === "tense") openTense(id); else if (ai) { closeLesson(); location.hash = "slova"; aiRound(); } else openWords(cat, list); };
+  $("contBtn").onclick = () => { if (nextT && stars >= 4) openTense(nextT.id); else closeLesson(); };
+  $("contBtn").focus();
+}
+document.addEventListener("keydown", e => {
+  if (!L || $("lesson").hidden) return;
+  if (e.key === "Escape") return closeLesson();
+  if (L.phase === "q" && !L.checked && /^[1-4]$/.test(e.key)) { const t = $("lInner").querySelectorAll(".tile")[+e.key - 1]; if (t) pick(+e.key - 1); }
+  if (e.key === "Enter" && !e.target.closest("textarea")) {
+    const b = $("nextBtn") || (L.phase === "q" && !L.checked ? $("checkBtn") : null);
+    if (b && !b.disabled && document.activeElement !== b) { e.preventDefault(); b.click(); }
+  }
+});
+
+function openTense(id) {
+  const t = TENSES.find(x => x.id === id);
+  openLesson({ kind: "tense", id, theory: t, items: shuffle(t.drill).map(d => ({ q: d[0], opts: d[1], right: d[2], why: d[3] })) });
+}
+
+/* ================= СЛОВА ================= */
+let dir = store.get("dir", "en");
+function wordStat(en, ok) {
+  const p = getProg();
+  if (ok) { p.wl[en] = (p.wl[en] || 0) + 1; if (p.wmiss[en]) { p.wmiss[en]--; if (p.wmiss[en] <= 0) delete p.wmiss[en]; } }
+  else { p.wl[en] = 0; p.wmiss[en] = (p.wmiss[en] || 0) + 1; }
+  setProg(p);
+}
+function openWords(cat, list) {
+  const p = getProg();
+  const pool = list || WORDS[cat].list;
+  // спершу ті, що ще не вивчені
+  const ordered = shuffle(pool).sort((a, b) => ((p.wl[a[0]] || 0) >= 2) - ((p.wl[b[0]] || 0) >= 2));
+  const items = ordered.slice(0, 10).map(([en, ua]) => {
+    const same = (WORDS[cat] ? WORDS[cat].list : pool).filter(w => w[0] !== en && w[1] !== ua);
+    const others = allWords().filter(w => w[0] !== en && w[1] !== ua);
+    const wrong = shuffle(same.length >= 3 ? same : others).slice(0, 3);
+    const opts = [[en, ua], ...wrong].map(w => dir === "en" ? w[1] : w[0]);
+    return { q: dir === "en" ? en : ua, opts, right: 0, key: en, en, why: dir === "en" ? "" : `${ua} = ${en}` };
+  });
+  openLesson({ kind: "word", cat, list, dir, items });
+}
+function renderCats() {
+  const p = getProg();
+  const tile = (name, i) => {
+    const c = WORDS[name]; if (!c) return "";
+    const learned = c.list.filter(w => (p.wl[w[0]] || 0) >= 2).length;
+    return `<button type="button" class="cat" data-c="${esc(name)}" style="animation-delay:${Math.min(i, 8) * 40}ms"><span class="ico" style="background:${c.col}"><span class="ico-l">${esc(name[0])}</span></span><b>${esc(name)}</b><span class="muted">Вивчено ${learned} з ${c.list.length}</span><span class="mini-bar"><i style="width:${learned / c.list.length * 100}%"></i></span></button>`;
+  };
+  const miss = allWords().filter(w => p.wmiss[w[0]]);
+  let html =`<div class="cat-grid" style="margin-bottom:8px"><button type="button" class="cat review" id="missCat" ${miss.length ? "" : "disabled"}><span class="ico" style="background:var(--red)">${icon("i-redo")}</span><b>Мої помилки</b><span class="muted">${miss.length ? `${miss.length} ${plural(miss.length, "слово", "слова", "слів")} на повторення` : "Поки чисто"}</span></button></div>`;
+  html += GROUPS.map(([g, names]) => `<h2 class="group-h">${esc(g)}</h2><div class="cat-grid">${names.map(tile).join("")}</div>`).join("");
+  const box = document.getElementById("cats"); box.innerHTML = html;
+  box.querySelectorAll(".cat[data-c]").forEach(b => b.onclick = () => { sfx.tap(); openWords(b.dataset.c); });
+  const mc = document.getElementById("missCat"); if (miss.length) mc.onclick = () => { sfx.tap(); openWords("Мої помилки", miss); };
+  const aw = allWords(), learnedAll = aw.filter(w => (p.wl[w[0]] || 0) >= 2).length;
+  $("wordsLede").textContent = `${ALL.length} слів у ${Object.keys(WORDS).length} темах + ${aiWords().length} у безмежному словнику. Вивчено ${learnedAll}.`;
+  $("dirEn").setAttribute("aria-pressed", dir === "en"); $("dirUa").setAttribute("aria-pressed", dir === "ua");
+}
+$("dirEn").onclick = () => { dir = "en"; store.set("dir", dir); renderCats(); };
+$("dirUa").onclick = () => { dir = "ua"; store.set("dir", dir); renderCats(); };
+
+/* ================= БЕЗМЕЖНИЙ СЛОВНИК (ШІ) ================= */
+const LEVELS = ["A2", "B1", "B2", "C1", "C2"];
+let aiLevel = store.get("aiLevel", "B1"), aiBusy = false;
+const aiWords = () => store.get("aiw", []);
+function allWords() { const m = new Map(ALL.map(w => [w[0], w])); aiWords().forEach(w => { if (!m.has(w[0])) m.set(w[0], w); }); return [...m.values()]; }
+function renderLevels() {
+  const box = $("lvls");
+  box.innerHTML = LEVELS.map(l => `<button type="button" data-l="${l}" aria-pressed="${l === aiLevel}">${l}</button>`).join("");
+  box.querySelectorAll("button").forEach(b => b.onclick = () => { aiLevel = b.dataset.l; store.set("aiLevel", aiLevel); sfx.tap(); renderLevels(); });
+}
+function aiStatus(html) { $("aiStatus").innerHTML = html; }
+async function aiRound() {
+  if (aiBusy) return;
+  const sample = await getSample();
+  if (!sample) { aiStatus("Безмежний словник скоро з'явиться на сайті. А поки тренуй слова з тем нижче."); return; }
+  aiBusy = true; $("aiGo").disabled = true; sfx.tap();
+  aiStatus(`<span class="typing"><i></i><i></i><i></i></span> Підбираю нові слова рівня ${aiLevel}…`);
+  const p = getProg();
+  const known = [...new Set([...aiWords().map(w => w[0]), ...Object.keys(p.wl)])].slice(-450);
+  const topic = $("aiTopic").value.trim();
+  const prompt = `You are building an English vocabulary quiz for a Ukrainian learner.
+Level: ${aiLevel} (CEFR). Topic: ${topic ? topic : "mixed everyday topics"}.
+Give 10 useful words or short phrases this learner should learn next, in modern American English. Mix nouns, verbs, adjectives, phrasal verbs and set phrases where natural. Match the level: ${aiLevel === "A2" ? "basic, very common words" : aiLevel === "B1" ? "common words for everyday conversations" : aiLevel === "B2" ? "less basic words for fluent conversation" : aiLevel === "C1" ? "advanced words that sound natural and educated" : "rare, nuanced, near-native vocabulary and idioms"}.
+Do NOT use any of these already known items: ${known.join(", ") || "(none)"}.
+Reply with only a JSON array of 10 objects, no other text:
+[{"en": "word or phrase", "ua": "короткий точний переклад українською", "wrong": ["хибний переклад 1", "хибний переклад 2", "хибний переклад 3"], "wrong_en": ["wrong English option 1", "wrong option 2", "wrong option 3"], "example": "A short natural example sentence using it."}]
+Wrong options must be plausible but clearly different in meaning. Write "ua" and "wrong" in Ukrainian only.`;
+  try {
+    const arr = await sample.json(prompt, { cache: false, effort: "low" });
+    const clean = (Array.isArray(arr) ? arr : []).filter(x => x && typeof x.en === "string" && typeof x.ua === "string" && Array.isArray(x.wrong) && Array.isArray(x.wrong_en))
+      .map(x => ({ en: x.en.trim(), ua: x.ua.trim(), wrong: x.wrong.map(String).filter(w => w && w !== x.ua).slice(0, 3), wrong_en: x.wrong_en.map(String).filter(w => w && w !== x.en).slice(0, 3), ex: typeof x.example === "string" ? x.example.trim() : "" }))
+      .filter(x => x.en && x.ua && x.wrong.length === 3 && x.wrong_en.length === 3).slice(0, 10);
+    if (clean.length < 4) throw { code: "invalid_json" };
+    const saved = aiWords(), have = new Set(saved.map(w => w[0]));
+    clean.forEach(x => { if (!have.has(x.en)) saved.push([x.en, x.ua]); });
+    store.set("aiw", saved.slice(-6000));
+    aiStatus(`+${clean.length} нових слів. У твоєму словнику вже ${saved.length}.`);
+    const items = clean.map(x => ({
+      q: dir === "en" ? x.en : x.ua,
+      opts: dir === "en" ? [x.ua, ...x.wrong] : [x.en, ...x.wrong_en],
+      right: 0, key: x.en, en: x.en, full: x.ex,
+      why: dir === "en" ? "" : `${x.ua} = ${x.en}`
+    }));
+    openLesson({ kind: "word", cat: "AI " + aiLevel, list: null, dir, items, ai: true });
+  } catch (e) {
+    if (!e || e.code !== "cancelled") aiStatus(errText(e).replace("Надішли повідомлення ще раз", "Спробуй ще раз").replace("Надішли ще раз", "Спробуй ще раз"));
+  } finally { aiBusy = false; $("aiGo").disabled = false; }
+}
+$("aiGo").onclick = aiRound;
+$("aiTopic").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); aiRound(); } });
+
+/* ================= РОЗМОВА (ШІ) ================= */
+const SCENARIOS = [
+  { id: "free", name: "Вільна тема", sub: "про що завгодно", ctx: "a relaxed free conversation about anything the learner wants", open: "Hey! What's up? What would you like to talk about today?" },
+  { id: "day", name: "Мій день", sub: "рутина, Present Simple", ctx: "talking about the learner's daily routine and habits (good practice for Present Simple and Present Continuous)", open: "Hi! Tell me about your typical day. What time do you usually wake up?" },
+  { id: "meet", name: "Знайомство", sub: "розповісти про себе", ctx: "meeting someone new at a party in the US: names, where you're from, what you do, hobbies", open: "Hey, nice to meet you! I'm Jake. I don't think we've met before. Where are you from?" },
+  { id: "past", name: "Вихідні", sub: "що робив, Past Simple", ctx: "a friend asking how the learner spent the last weekend (good practice for Past Simple and Past Continuous)", open: "Hey man, how was your weekend? Did you do anything fun?" },
+  { id: "travel", name: "Аеропорт і готель", sub: "подорожі", ctx: "role-play: the AI is a hotel receptionist or airport staff in the United States, the learner is a traveler", open: "Good evening, welcome to the Riverside Hotel! Do you have a reservation with us?" },
+  { id: "sport", name: "Спорт і тренування", sub: "зал, турнік, форма", ctx: "two gym buddies talking about workouts, pull-ups, progress and staying fit", open: "Yo! I saw you on the pull-up bar. How many can you do in one set?" },
+  { id: "future", name: "Плани й мрії", sub: "will і going to", ctx: "talking about the learner's plans, goals and dreams for the future (good practice for will and going to)", open: "So, where do you see yourself in five years? What are you going to do?" }
+];
+const RULES = sc => `You are a friendly American English conversation partner for a Ukrainian learner (level B1–B2). Scenario: ${sc.ctx}.
+Stay in the scenario. Write your reply in natural spoken American English, 1–3 short sentences, casual but clear, and usually end with a question to keep the talk going.
+Then review ONLY the learner's latest message for grammar, word choice and naturalness.
+Reply with only one JSON object, no other text:
+{"reply": "your conversational reply in English",
+ "mistakes": [{"wrong": "exact fragment from the learner", "right": "corrected fragment", "why": "дуже коротке пояснення українською"}],
+ "natural": "how a native speaker would naturally say the learner's whole latest message, in English",
+ "tip": "одна коротка корисна порада українською (можна порожній рядок)"}
+Rules: "mistakes" is an empty array if there are no real mistakes (do not invent any; ignore missing final punctuation and capital letters). If the learner wrote in Ukrainian or Russian, put the English version into "natural", leave "mistakes" empty, and in "reply" gently ask them to try saying it in English. Explanations ("why", "tip") are always in Ukrainian.`;
+
+let scen = store.get("scen", "free"), turns = [], busy = false, ctl = null, samplePromise = null;
+const logEl = $("log");
+function renderScenList() {
+  const box = $("scenList");
+  box.innerHTML = SCENARIOS.map(s => `<button type="button" data-id="${s.id}" aria-pressed="${s.id === scen}"><b>${s.name}</b><small>${s.sub}</small></button>`).join("");
+  box.querySelectorAll("button").forEach(b => b.onclick = () => { if (busy) return; sfx.tap(); scen = b.dataset.id; store.set("scen", scen); renderScenList(); resetChat(); });
+}
+function resetChat() { const sc = SCENARIOS.find(s => s.id === scen) || SCENARIOS[0]; turns = [{ role: "assistant", content: sc.open }]; logEl.innerHTML = ""; addAi(sc.open); }
+function scrollLog() { logEl.scrollTop = logEl.scrollHeight; }
+function addAi(text) {
+  const m = document.createElement("div"); m.className = "msg ai";
+  m.innerHTML = `<div class="msg-row"><span class="avatar">AI</span><div class="bubble"></div></div><div class="msg-tools">${sayBtn(text, true)}<button type="button" class="tiny">переклад</button></div>`;
+  m.querySelector(".bubble").textContent = text;
+  const tb = m.querySelector(".tiny"); tb.onclick = () => translate(text, m, tb);
+  logEl.appendChild(m); scrollLog();
+}
+function addMe(text) { const m = document.createElement("div"); m.className = "msg me"; m.innerHTML = `<div class="bubble"></div>`; m.querySelector(".bubble").textContent = text; logEl.appendChild(m); scrollLog(); }
+function addReview(r) {
+  const mistakes = Array.isArray(r.mistakes) ? r.mistakes.filter(x => x && x.wrong) : [];
+  const box = document.createElement("div"); box.className = "review" + (mistakes.length ? "" : " clean");
+  let html = mistakes.length ? `<h4>Помилки</h4>` + mistakes.map(x => `<div class="fix"><span><span class="x">${esc(x.wrong)}</span> → <span class="ok">${esc(x.right || "")}</span></span>${x.why ? `<small>${esc(x.why)}</small>` : ""}</div>`).join("") : `<h4>Без помилок</h4>`;
+  if (r.natural) html += `<h4>Як сказав би носій</h4><div class="native">${esc(r.natural)}</div>`;
+  if (r.tip) html += `<h4>Порада</h4><div>${esc(r.tip)}</div>`;
+  box.innerHTML = html; logEl.appendChild(box); scrollLog();
+  return mistakes.length;
+}
+function addNote(text) { const n = document.createElement("div"); n.className = "notice"; n.textContent = text; logEl.appendChild(n); scrollLog(); }
+const ERR = {
+  not_granted: "Співрозмовнику потрібен дозвіл на використання Claude. Його можна дати в налаштуваннях доступу цієї сторінки.",
+  sampling_disabled: "Claude недоступний для цього акаунта.",
+  rate_limited: "Забагато повідомлень за короткий час. Зроби паузу на хвилину і спробуй знову.",
+  session_expired: "Треба знову увійти в акаунт Claude.",
+  refused: "Співрозмовник не може відповісти на це повідомлення. Спробуй сформулювати інакше.",
+  invalid_json: "Відповідь прийшла в незрозумілому форматі. Надішли ще раз.",
+  prompt_too_large: "Розмова стала задовгою. Обери тему ще раз, щоб почати нову.",
+  empty_completion: "Відповідь прийшла порожньою. Надішли ще раз."
+};
+const errText = e => ERR[e && e.code] || "Зв'язок перервався. Надішли повідомлення ще раз.";
+function getSample() { if (!samplePromise) samplePromise = (window.claude && window.claude.use) ? window.claude.use("sample").catch(() => null) : Promise.resolve(null); return samplePromise; }
+async function translate(text, m, btn) {
+  const sample = await getSample();
+  if (!sample) { btn.textContent = "переклад недоступний"; btn.disabled = true; return; }
+  btn.disabled = true; btn.textContent = "перекладаю…";
+  try {
+    const { text: t } = await sample("Translate into natural Ukrainian. Reply with only the translation:\n\n" + text, { modelTier: "quick" });
+    const d = document.createElement("div"); d.className = "tr"; d.textContent = t.trim(); btn.replaceWith(d);
+  } catch (e) { btn.disabled = false; btn.textContent = "переклад"; if (e && e.code !== "cancelled") addNote(errText(e)); }
+}
+$("stopBtn").onclick = () => ctl && ctl.abort();
+const input = $("msgInput");
+input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("composer").requestSubmit(); } });
+input.addEventListener("input", () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140) + "px"; });
+$("composer").addEventListener("submit", async e => {
+  e.preventDefault();
+  const text = input.value.trim(); if (!text || busy) return;
+  const sample = await getSample();
+  if (!sample) { addNote("Розмова з ШІ скоро з'явиться на сайті. А поки тренуй шлях і слова."); return; }
+  input.value = ""; input.style.height = "auto"; addMe(text); sfx.tap();
+  turns.push({ role: "user", content: text }); if (turns.length > 24) turns = turns.slice(-24);
+  const sc = SCENARIOS.find(s => s.id === scen) || SCENARIOS[0];
+  busy = true; ctl = new AbortController(); $("sendBtn").disabled = true; $("stopBtn").hidden = false;
+  const th = document.createElement("div"); th.className = "msg ai"; th.innerHTML = `<div class="msg-row"><span class="avatar">AI</span><div class="typing"><i></i><i></i><i></i></div></div>`; logEl.appendChild(th); scrollLog();
+  try {
+    const r = await sample.json([{ role: "user", content: RULES(sc) }, ...turns], { cache: false, signal: ctl.signal, effort: "low" });
+    th.remove();
+    const reply = (r && typeof r.reply === "string" && r.reply.trim()) ? r.reply.trim() : "Sorry, could you say that again?";
+    const n = addReview(r || {}); addAi(reply); turns.push({ role: "assistant", content: reply });
+    const gain = n ? 5 : 10; addXp(gain); if (!n) sfx.ok();
+  } catch (err) {
+    th.remove(); turns.pop(); if (!err || err.code !== "cancelled") addNote(errText(err));
+  } finally { busy = false; ctl = null; $("sendBtn").disabled = false; $("stopBtn").hidden = true; }
+});
+
+/* ================= СТАРТ ================= */
+route(); renderSoundBtn(); renderStats(); renderPath(); renderLevels(); renderCats(); renderScenList(); resetChat();
+</script>
+
+</body>
+</html>
